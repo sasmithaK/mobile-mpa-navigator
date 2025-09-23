@@ -1,50 +1,116 @@
-# Welcome to your Expo app 👋
+# 🌍 UEE Project - Eco Marine Compliance App 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This project is developed as part of the **UEE module**, focusing on **eco-compliance, route planning, marine life protection, and community reporting** for sustainable marine navigation. 
 
-## Get started
+## 🚀 Getting Started with the Project  
 
-1. Install dependencies
-
+1. Clone the Repository
    ```bash
-   npm install
+   git clone <repo-link>
+   cd <repo-name>
    ```
 
-2. Start the app
+2. Install VS Code Extensions
 
    ```bash
+   React Native Tools
+
+   ES7 + React/Redux/React-Native snippets
+
+   Expo Tools
+   ```
+
+3. Install Dependencies & Start
+
+   ```bash
+   npm i
+   npm start
+   # or
    npx expo start
+
+   ```
+4. Run the App
+   ```bash
+   Scan the QR Code shown in the terminal using the Expo Go App on your mobile.
+
+   If it doesn’t work, run with tunnel mode:
+
+   npx expo start --tunnel
+
+   In the output, you'll find options to open the app in a
    ```
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 📅 Work Division
 
 ```bash
-npm run reset-project
+
+| Member       | Assigned Functionality              |
+| ------------ | ----------------------------------- |
+| **Isara**    | Eco-Compliance & Awareness Hub      |
+| **Sasmitha** | Eco-Friendly Route Planning         |
+| **Dinithi**  | Marine Life & Sensitive Zone Alerts |
+| **Olivea**   | Compliance & Reporting System       |
+
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+### 📝 Documentation Deliverables
+```bash
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. User Research & UX Artifactsc : Personas, Empathy Maps, Journey Maps
+Isara → Ship Captain (Fuel-conscious)
+Sasmitha → Port Authority Officer
+Dinithi → Environmental NGO Worker
+Olivea → Coastal Community Reporter
 
-## Join the community
+2. Sketches, Wireframes & High-Fidelity Prototype
+Isara → Eco-Compliance & Awareness Hub UI
+Sasmitha → Eco-route Map UI (green vs red routes)
+Dinithi → Marine Zone Alert UI (overlays, icons, push notifications)
+Olivea → Reports UI (report button, log history, eco-certificates)
 
-Join our community of developers creating universal apps.
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### ⚙️ Development Phases
+
+```bash
+
+3. Backend + API Integration Setup
+Isara → Store compliance logs in MongoDB
+Sasmitha → Integrate Weather/Tide API + route calculation
+Dinithi → Fetch Marine Biodiversity Zones (OBIS API) + alerts
+Olivea → Save reports to MongoDB + compliance logs API
+
+4. Frontend Development (React Native)
+Isara → Compliance & Awareness Hub Screens
+Sasmitha → Map screen with eco-route planning
+Dinithi → Overlay alerts on map + notifications
+Olivea → Reports screen + compliance badges
+
+```
+
+### 🎨 Branding & Promotion
+```bash
+
+Logo + Tagline + Poster → Isara & Sasmitha
+Promotional Videos (AI-generated):
+Feature explanation
+Marketing launch ad (Sasmitha)
+
+```
+
+### 🧪 User Testing
+```bash
+
+🔹 Before Development (Prototype Testing)
+Validate design, navigation, flow, usability, clarity
+Users test a clickable prototype (not the app)
+
+
+
+🔹 After Development (App Testing - .apk)
+Validate functionality & performance
+Users test the real app on their phone
+
+```
