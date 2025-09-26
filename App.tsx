@@ -1,11 +1,14 @@
-import React from "react";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import TabNavigator from "./app/navigation/TabNavigator";
+import React from 'react';
+import { SafeAreaView, StatusBar } from 'react-native';
+import Home from './app/(tabs)/Home';
 
-export default function App() {
+const App = () => {
   return (
-    <SafeAreaProvider>
-      <TabNavigator />
-    </SafeAreaProvider>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
+      <Home />
+    </SafeAreaView>
   );
-}
+};
+
+export default App;
