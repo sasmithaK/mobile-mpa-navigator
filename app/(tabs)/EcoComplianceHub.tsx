@@ -31,6 +31,7 @@ import {
 } from 'lucide-react-native';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -73,7 +74,7 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#10b981', '#059669'],
       description: 'Learn about different types of MPAs, their boundaries, and protection levels.',
       readTime: '5 min read',
-      image: 'asserts/images/nav1.jpg' // Add to assets/images/
+      image: 'nav5.jpg' 
     },
     {
       id: 2,
@@ -84,7 +85,7 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#3b82f6', '#1d4ed8'],
       description: 'Discover endangered species, migration patterns, and conservation efforts.',
       readTime: '7 min read',
-      image: 'asserts/images/nav2.jpg'
+      image: 'nav4.jpg'
     },
     {
       id: 3,
@@ -95,7 +96,7 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#f59e0b', '#d97706'],
       description: 'Best practices for sustainable fishing and marine resource management.',
       readTime: '6 min read',
-      image: 'asserts/images/nav3.jpg'
+      image: 'nav3.jpg'
     },
     {
       id: 4,
@@ -106,7 +107,7 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#06b6d4', '#0891b2'],
       description: 'Understanding pollution sources and prevention strategies.',
       readTime: '4 min read',
-      image: 'asserts/images/nav4.jpg'
+      image: 'nav4.jpg'
     },
     {
       id: 5,
@@ -117,7 +118,7 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#8b5cf6', '#7c3aed'],
       description: 'International and local regulations for marine conservation.',
       readTime: '8 min read',
-      image: 'asserts/images/nav5.jpg'
+      image: 'nav5.jpg'
     },
     {
       id: 6,
@@ -128,8 +129,9 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#ef4444', '#dc2626'],
       description: 'How climate change affects marine ecosystems and biodiversity.',
       readTime: '9 min read',
-      image: 'asserts/images/nav6.jpg'
-    }
+      image: 'nav6.jpg'
+    },
+    
   ];
 
   
@@ -140,11 +142,17 @@ const EcoComplianceHub: React.FC = () => {
     { label: 'Educational Resources', value: '200+', icon: BookOpen }
   ];
 
+  const navigation = useNavigation();
   const handleTopicPress = (topic: EducationalTopic): void => {
-    // Navigate to detailed topic page
-    console.log('Navigate to:', topic.title);
+  navigation.navigate('TopicDetail', { topic });
+  
+};
+
+  // const handleTopicPress = (topic: EducationalTopic): void => {
+  //   // Navigate to detailed topic page
+  //   console.log('Navigate to:', topic.title);
     
-  };
+  // };
 
   const handleQuickAction = (action: string): void => {
     console.log('Quick action:', action);
@@ -172,7 +180,7 @@ const EcoComplianceHub: React.FC = () => {
           <View style={styles.heroGradient} />
           
           <View style={styles.heroContent}>
-            <Leaf size={40} color="#10b981" />
+            <Leaf size={40} color="#13c72eff" />
             <Text style={styles.heroTitle}>
               Eco-Compliance & Awareness Hub
             </Text>
@@ -243,6 +251,12 @@ const EcoComplianceHub: React.FC = () => {
                     Add {topic.image} to assets/images/
                   </Text>
                 </View>
+                
+                <Image
+                  source={require('../../assets/images/nav6.jpg')}
+                  style={styles.cardImage}
+                  resizeMode="cover"
+                />
                 
                 {/* When you add real images, replace the above with:
                 <Image
