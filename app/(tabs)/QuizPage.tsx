@@ -4,6 +4,7 @@ import {
   ScrollView,
   View,
   Text,
+  Image,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
@@ -22,11 +23,13 @@ import {
   Anchor,
   AlertTriangle,
   Trophy,
-  RefreshCcw
+  RefreshCcw,
+  Video
 } from 'lucide-react-native';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
+const herovideo = require ("../../assets/videos/videoboat.mp4")
 const { width } = Dimensions.get('window');
 
 // TypeScript interfaces
