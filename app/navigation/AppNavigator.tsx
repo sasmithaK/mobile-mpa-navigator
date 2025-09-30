@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import EcoComplianceHub from '../(tabs)/EcoComplianceHub';
 import TopicDetail from '../(tabs)/TopicDetail';
+import QuizPage from '../(tabs)/QuizPage';
 // import AwarenessTips from '../tabs/AwarenessTips'; // When you create this
 
 const Stack = createStackNavigator();
@@ -24,6 +25,11 @@ function AppNavigator() {
           component={TopicDetail}
           options={{ headerShown: false }}
         />
+        <Stack.Screen 
+          name="QuizPage" 
+          component={QuizPage}
+          options={{ headerShown: false }}
+/>
         {/* Add more screens as needed */}
       </Stack.Navigator>
     </NavigationContainer>
