@@ -1,4 +1,4 @@
-// app/tabs/VideoLearningPage.tsx
+
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -37,8 +37,6 @@ import { WebView } from 'react-native-webview';
 const { width, height } = Dimensions.get('window');
 
 
-
-// TypeScript interfaces
 interface Video {
   id: number;
   title: string;
