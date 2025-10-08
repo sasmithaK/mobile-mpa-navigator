@@ -9,6 +9,7 @@ import {
   Dimensions,
   Animated,
   StatusBar,
+  Linking,
   Modal,
   Image
 } from 'react-native';
@@ -33,6 +34,7 @@ import {
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { WebView } from 'react-native-webview';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -79,8 +81,8 @@ const VideoLearningPage: React.FC = () => {
           duration: '12:45',
           views: '2.3M',
           category: 'Marine Biodiversity',
-          thumbnail: 'marine_bio_1.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example1',
+          thumbnail: require('../../assets/images/nav4.jpg'),
+          videoUrl: 'https://youtu.be/aZlxnoTXOTQ?si=gNATUqRIlpwZuYZg',
           difficulty: 'Beginner'
         },
         {
@@ -91,7 +93,7 @@ const VideoLearningPage: React.FC = () => {
           views: '1.8M',
           category: 'Marine Biodiversity',
           thumbnail: 'coral_reef.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example2',
+          videoUrl: 'https://youtu.be/kXXzvGJCVAc?si=wy7DYWi24qQHS7Yz',
           difficulty: 'Beginner'
         },
         {
@@ -102,7 +104,7 @@ const VideoLearningPage: React.FC = () => {
           views: '3.1M',
           category: 'Marine Biodiversity',
           thumbnail: 'deep_sea.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example3',
+          videoUrl: 'https://youtu.be/p6hGsSmbdPs?si=5owNqQag17NCDowK',
           difficulty: 'Intermediate'
         },
         {
@@ -113,7 +115,7 @@ const VideoLearningPage: React.FC = () => {
           views: '4.2M',
           category: 'Marine Biodiversity',
           thumbnail: 'whales.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example4',
+          videoUrl: 'https://youtu.be/XmN4NAOE940?si=WxkMVz-EldjeKXV4',
           difficulty: 'Beginner'
         }
       ]
@@ -132,7 +134,7 @@ const VideoLearningPage: React.FC = () => {
           views: '1.5M',
           category: 'Ocean Conservation',
           thumbnail: 'mpa.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example5',
+          videoUrl: 'https://youtu.be/kCYxhmgljaE?si=oWZdmo2DS4IdkQUp',
           difficulty: 'Beginner'
         },
         {
@@ -143,7 +145,7 @@ const VideoLearningPage: React.FC = () => {
           views: '2.7M',
           category: 'Ocean Conservation',
           thumbnail: 'save_ocean.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example6',
+          videoUrl: 'https://youtu.be/TPHbVpjBkUY?si=nX20AEAR7TISaiZ3',
           difficulty: 'Beginner'
         },
         {
@@ -154,7 +156,7 @@ const VideoLearningPage: React.FC = () => {
           views: '1.9M',
           category: 'Ocean Conservation',
           thumbnail: 'success.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example7',
+          videoUrl: 'https://youtu.be/g1cJdqGOkYg?si=80jpGhIw-NMqyqfB',
           difficulty: 'Intermediate'
         }
       ]
@@ -173,7 +175,7 @@ const VideoLearningPage: React.FC = () => {
           views: '5.2M',
           category: 'Pollution & Climate',
           thumbnail: 'plastic.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example8',
+          videoUrl: 'https://youtu.be/OVWZyDz--30?si=ds5qeM-cgCJE66QS',
           difficulty: 'Beginner'
         },
         {
@@ -184,7 +186,7 @@ const VideoLearningPage: React.FC = () => {
           views: '1.3M',
           category: 'Pollution & Climate',
           thumbnail: 'acidification.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example9',
+          videoUrl: 'https://youtu.be/RS7IzU2VJIQ?si=9F10N4Wnont2ef7-',
           difficulty: 'Intermediate'
         },
         {
@@ -206,7 +208,7 @@ const VideoLearningPage: React.FC = () => {
           views: '3.8M',
           category: 'Pollution & Climate',
           thumbnail: 'cleanup.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example11',
+          videoUrl: 'https://youtu.be/Sp572udnPVg?si=tvOytlV_iP_whGCE',
           difficulty: 'Intermediate'
         }
       ]
@@ -225,7 +227,7 @@ const VideoLearningPage: React.FC = () => {
           views: '980K',
           category: 'Sustainable Fishing',
           thumbnail: 'fishing.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example12',
+          videoUrl: 'https://youtu.be/XPCBzcb49_M?si=7IVcDWKif6Yr0JMs',
           difficulty: 'Beginner'
         },
         {
@@ -236,7 +238,7 @@ const VideoLearningPage: React.FC = () => {
           views: '1.6M',
           category: 'Sustainable Fishing',
           thumbnail: 'overfishing.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example13',
+          videoUrl: 'https://youtu.be/Js7ytNT6b-k?si=QE9v5qNowc1jfkuK',
           difficulty: 'Intermediate'
         },
         {
@@ -247,7 +249,7 @@ const VideoLearningPage: React.FC = () => {
           views: '1.2M',
           category: 'Sustainable Fishing',
           thumbnail: 'seafood.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example14',
+          videoUrl: 'https://youtu.be/OIsA8xQ7WbQ?si=IeSN9IOdTejujoVI',
           difficulty: 'Beginner'
         }
       ]
@@ -266,7 +268,7 @@ const VideoLearningPage: React.FC = () => {
           views: '6.5M',
           category: 'Ocean Exploration',
           thumbnail: 'exploration.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example15',
+          videoUrl: 'https://youtu.be/JB1kYcJLr6o?si=dKP6AWRhntQKm55M',
           difficulty: 'Intermediate'
         },
         {
@@ -277,7 +279,7 @@ const VideoLearningPage: React.FC = () => {
           views: '2.1M',
           category: 'Ocean Exploration',
           thumbnail: 'robots.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example16',
+          videoUrl: 'https://youtu.be/OzzmjlKFYyY?si=N8YkqmcdiyxDDvQN',
           difficulty: 'Advanced'
         },
         {
@@ -288,7 +290,7 @@ const VideoLearningPage: React.FC = () => {
           views: '3.3M',
           category: 'Ocean Exploration',
           thumbnail: 'species.jpg',
-          videoUrl: 'https://www.youtube.com/watch?v=example17',
+          videoUrl: 'https://youtu.be/L4qM1IEhtNQ?si=RbTko6EOCSK8pV-T',
           difficulty: 'Intermediate'
         }
       ]
