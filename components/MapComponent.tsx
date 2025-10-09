@@ -43,7 +43,7 @@ const WebMapComponent: React.FC<MapComponentProps> = ({
   onVesselPress,
   getShipIcon,
   getZoneColor
-}) => {
+}: MapComponentProps) => {
   return (
     <View style={styles.webMapContainer}>
       <View style={styles.webMap}>
@@ -105,87 +105,11 @@ const WebMapComponent: React.FC<MapComponentProps> = ({
   );
 };
 
-// Create a proper lazy component for native maps
-const createNativeMapComponent = (): React.LazyExoticComponent<React.FC<MapComponentProps>> => {
-  // For web platform, return a lazy component that resolves to a dummy component
-  if (Platform.OS === 'web') {
-    return React.lazy(async () => ({
-      default: () => null
-    }));
-  }
-
-  // For native platforms, return the actual map component
-  return React.lazy(async () => {
-    const Maps = await import('react-native-maps');
-    const { default: MapView, Marker, Circle } = Maps;
-    
-    const NativeMap: React.FC<MapComponentProps> = ({
-      region,
-      vessels,
-      sensitiveZones,
-      zonesVisible,
-      onVesselPress,
-      onRegionChange,
-      getShipIcon,
-      getZoneColor
-    }) => (
-      <MapView
-        style={styles.map}
-        region={region}
-        onRegionChangeComplete={onRegionChange}
-      >
-        {zonesVisible && sensitiveZones.map(zone => (
-          <Circle
-            key={zone.id}
-            center={{
-              latitude: zone.latitude,
-              longitude: zone.longitude
-            }}
-            radius={zone.radius}
-            strokeColor={getZoneColor(zone.severity)}
-            fillColor={getZoneColor(zone.severity) + '20'}
-            strokeWidth={2}
-          />
-        ))}
-
-        {vessels.map(vessel => (
-          <Marker
-            key={vessel.id}
-            coordinate={{
-              latitude: vessel.latitude,
-              longitude: vessel.longitude
-            }}
-            title={vessel.name}
-            description={`Speed: ${vessel.speed} knots`}
-            onPress={() => onVesselPress(vessel)}
-          >
-            <View style={styles.markerContainer}>
-              <Text style={styles.shipIcon}>{getShipIcon(vessel.type)}</Text>
-              <Text style={styles.shipName}>{vessel.name}</Text>
-            </View>
-          </Marker>
-        ))}
-      </MapView>
-    );
-    
-    return { default: NativeMap };
-  });
-};
-
-// Create the native map component instance
-const LazyNativeMapComponent = createNativeMapComponent();
-
-// Main MapComponent that chooses the right implementation
-const MapComponent: React.FC<MapComponentProps> = (props) => {
-  if (Platform.OS === 'web') {
-    return <WebMapComponent {...props} />;
-  }
-  
-  return (
-    <React.Suspense fallback={<View style={styles.loadingContainer}><Text>Loading map...</Text></View>}>
-      <LazyNativeMapComponent {...props} />
-    </React.Suspense>
-  );
+// Main MapComponent - Use web version for all platforms
+// NOTE: Native maps (react-native-maps) require Expo development build with custom native configuration
+// For now, we use a cross-platform web-friendly implementation
+const MapComponent: React.FC<MapComponentProps> = (props: MapComponentProps) => {
+  return <WebMapComponent {...props} />;
 };
 
 const styles = StyleSheet.create({
