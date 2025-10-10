@@ -237,7 +237,7 @@ const SplashScreen = () => {
           }}
         >
           <Text style={styles.appName}>Eco Nav</Text>
-          <Text style={styles.tagline}>Eco Friendly Navigation</Text>
+          <Text style={styles.tagline}>protecting our oceans, one voyage at a time</Text>
         </Animated.View>
 
         {/* Loading Indicator */}

@@ -30,6 +30,7 @@ import ShipMap from '../../components/ShipMap';
 import StatsCards from '../../components/StatsCards';
 import FeaturesGrid from '../../components/FeaturesGrid';
 import TechnologyStack from '../../components/TechnologyStack';
+import BottomNavBar from '../../components/BottomNavigation';
 import '../../Styles/global.css';
 
 const { width } = Dimensions.get('window');
@@ -87,6 +88,7 @@ const Home = () => {
               </View>
             ))}
           </View>
+          
         </View>
 
         <StatsCards />
@@ -138,6 +140,13 @@ const Home = () => {
         <TechnologyStack />
         <Footer />
       </Animated.ScrollView>
+      {/* Bottom Navigation - Moved outside ScrollView */}
+      
+      <BottomNavBar 
+        activeTab={activeSection} 
+        onTabChange={setActiveSection} 
+      />
+
     </View>
   );
 };
