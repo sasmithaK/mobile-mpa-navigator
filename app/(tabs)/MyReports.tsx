@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   FileText,
   MapPin,
@@ -18,7 +19,6 @@ import {
   Eye,
 } from 'lucide-react-native';
 
-// Mock data for demonstration
 const MOCK_REPORTS = [
   {
     _id: '1',
@@ -64,40 +64,21 @@ const MyReports = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
+    setTimeout(() => setRefreshing(false), 1500);
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical':
-        return '#dc2626';
-      case 'high':
-        return '#ea580c';
-      case 'medium':
-        return '#f59e0b';
-      case 'low':
-        return '#10b981';
-      default:
-        return '#6b7280';
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#f59e0b';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
     }
   };
 
   const getSeverityLabel = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return 'Critical';
-      case 'high':
-        return 'High';
-      case 'medium':
-        return 'Medium';
-      case 'low':
-        return 'Low';
-      default:
-        return severity;
-    }
+    return severity.charAt(0).toUpperCase() + severity.slice(1);
   };
 
   const formatDate = (dateString: string) => {
@@ -117,6 +98,8 @@ const MyReports = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient colors={['#0a1929', '#1a365d', '#0f172a']} style={styles.gradient} />
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>My Reports</Text>
@@ -131,56 +114,44 @@ const MyReports = () => {
           style={[styles.filterTab, filter === 'all' && styles.filterTabActive]}
           onPress={() => setFilter('all')}
         >
-          <Text
-            style={[
-              styles.filterTabText,
-              filter === 'all' && styles.filterTabTextActive,
-            ]}
+          <LinearGradient
+            colors={filter === 'all' ? ['rgba(6,191,219,0.3)', 'rgba(6,191,219,0.15)'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.05)']}
+            style={styles.filterTabGradient}
           >
-            All ({reports.length})
-          </Text>
+            <Text style={[styles.filterTabText, filter === 'all' && styles.filterTabTextActive]}>
+              All ({reports.length})
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filter === 'hotspot' && styles.filterTabActive,
-          ]}
+          style={[styles.filterTab, filter === 'hotspot' && styles.filterTabActive]}
           onPress={() => setFilter('hotspot')}
         >
-          <Fish
-            size={16}
-            color={filter === 'hotspot' ? '#3b82f6' : '#6b7280'}
-          />
-          <Text
-            style={[
-              styles.filterTabText,
-              filter === 'hotspot' && styles.filterTabTextActive,
-            ]}
+          <LinearGradient
+            colors={filter === 'hotspot' ? ['rgba(6,191,219,0.3)', 'rgba(6,191,219,0.15)'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.05)']}
+            style={styles.filterTabGradient}
           >
-            Hotspots
-          </Text>
+            <Fish size={16} color={filter === 'hotspot' ? '#06bfdb' : 'rgba(255,255,255,0.5)'} />
+            <Text style={[styles.filterTabText, filter === 'hotspot' && styles.filterTabTextActive]}>
+              Hotspots
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filter === 'pollution' && styles.filterTabActive,
-          ]}
+          style={[styles.filterTab, filter === 'pollution' && styles.filterTabActive]}
           onPress={() => setFilter('pollution')}
         >
-          <Droplet
-            size={16}
-            color={filter === 'pollution' ? '#3b82f6' : '#6b7280'}
-          />
-          <Text
-            style={[
-              styles.filterTabText,
-              filter === 'pollution' && styles.filterTabTextActive,
-            ]}
+          <LinearGradient
+            colors={filter === 'pollution' ? ['rgba(6,191,219,0.3)', 'rgba(6,191,219,0.15)'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.05)']}
+            style={styles.filterTabGradient}
           >
-            Pollution
-          </Text>
+            <Droplet size={16} color={filter === 'pollution' ? '#06bfdb' : 'rgba(255,255,255,0.5)'} />
+            <Text style={[styles.filterTabText, filter === 'pollution' && styles.filterTabTextActive]}>
+              Pollution
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
@@ -189,12 +160,12 @@ const MyReports = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#06bfdb" />
         }
       >
         {filteredReports.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <FileText size={64} color="#d1d5db" />
+            <FileText size={64} color="rgba(255,255,255,0.2)" />
             <Text style={styles.emptyTitle}>No reports yet</Text>
             <Text style={styles.emptySubtitle}>
               Submit your first report from the Reports tab
@@ -203,83 +174,90 @@ const MyReports = () => {
         ) : (
           filteredReports.map((report) => (
             <View key={report._id} style={styles.reportCard}>
-              {/* Report Header */}
-              <View style={styles.reportHeader}>
-                <View style={styles.reportTypeIcon}>
-                  {report.type === 'hotspot' ? (
-                    <Fish size={20} color="#3b82f6" />
-                  ) : (
-                    <Droplet size={20} color="#ef4444" />
-                  )}
+              <LinearGradient
+                colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+                style={styles.cardGradient}
+              >
+                {/* Report Header */}
+                <View style={styles.reportHeader}>
+                  <View style={[styles.reportTypeIcon, {
+                    backgroundColor: report.type === 'hotspot' ? 'rgba(59,130,246,0.2)' : 'rgba(239,68,68,0.2)'
+                  }]}>
+                    {report.type === 'hotspot' ? (
+                      <Fish size={20} color="#3b82f6" />
+                    ) : (
+                      <Droplet size={20} color="#ef4444" />
+                    )}
+                  </View>
+                  <View style={styles.reportHeaderText}>
+                    <Text style={styles.reportTitle}>{report.title}</Text>
+                    <View style={styles.reportMeta}>
+                      <Calendar size={14} color="rgba(255,255,255,0.6)" />
+                      <Text style={styles.reportDate}>
+                        {formatDate(report.createdAt)}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-                <View style={styles.reportHeaderText}>
-                  <Text style={styles.reportTitle}>{report.title}</Text>
-                  <View style={styles.reportMeta}>
-                    <Calendar size={14} color="#6b7280" />
-                    <Text style={styles.reportDate}>
-                      {formatDate(report.createdAt)}
+
+                {/* Species (for hotspot) */}
+                {report.type === 'hotspot' && report.species && (
+                  <View style={styles.speciesTag}>
+                    <Fish size={14} color="#3b82f6" />
+                    <Text style={styles.speciesText}>{report.species}</Text>
+                  </View>
+                )}
+
+                {/* Description */}
+                <Text style={styles.reportDescription} numberOfLines={2}>
+                  {report.description}
+                </Text>
+
+                {/* Location and Severity */}
+                <View style={styles.reportFooter}>
+                  <View style={styles.locationTag}>
+                    <MapPin size={14} color="rgba(255,255,255,0.6)" />
+                    <Text style={styles.locationText}>
+                      {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.severityBadge,
+                      { backgroundColor: getSeverityColor(report.severity) + '20' },
+                    ]}
+                  >
+                    <AlertTriangle
+                      size={14}
+                      color={getSeverityColor(report.severity)}
+                    />
+                    <Text
+                      style={[
+                        styles.severityText,
+                        { color: getSeverityColor(report.severity) },
+                      ]}
+                    >
+                      {getSeverityLabel(report.severity)}
                     </Text>
                   </View>
                 </View>
-              </View>
 
-              {/* Species (for hotspot) */}
-              {report.type === 'hotspot' && report.species && (
-                <View style={styles.speciesTag}>
-                  <Fish size={14} color="#3b82f6" />
-                  <Text style={styles.speciesText}>{report.species}</Text>
+                {/* Action Buttons */}
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity style={styles.actionButton}>
+                    <Eye size={18} color="#06bfdb" />
+                    <Text style={styles.actionButtonText}>View</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.actionButton}>
+                    <Trash2 size={18} color="#ef4444" />
+                    <Text style={[styles.actionButtonText, { color: '#ef4444' }]}>
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-
-              {/* Description */}
-              <Text style={styles.reportDescription} numberOfLines={2}>
-                {report.description}
-              </Text>
-
-              {/* Location and Severity */}
-              <View style={styles.reportFooter}>
-                <View style={styles.locationTag}>
-                  <MapPin size={14} color="#6b7280" />
-                  <Text style={styles.locationText}>
-                    {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
-                  </Text>
-                </View>
-
-                <View
-                  style={[
-                    styles.severityBadge,
-                    { backgroundColor: getSeverityColor(report.severity) + '20' },
-                  ]}
-                >
-                  <AlertTriangle
-                    size={14}
-                    color={getSeverityColor(report.severity)}
-                  />
-                  <Text
-                    style={[
-                      styles.severityText,
-                      { color: getSeverityColor(report.severity) },
-                    ]}
-                  >
-                    {getSeverityLabel(report.severity)}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Action Buttons */}
-              <View style={styles.actionButtons}>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Eye size={18} color="#3b82f6" />
-                  <Text style={styles.actionButtonText}>View</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButton}>
-                  <Trash2 size={18} color="#ef4444" />
-                  <Text style={[styles.actionButtonText, { color: '#ef4444' }]}>
-                    Delete
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              </LinearGradient>
             </View>
           ))
         )}
@@ -291,51 +269,61 @@ const MyReports = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#0a1929',
+  },
+  gradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   header: {
     padding: 20,
-    backgroundColor: 'white',
+    paddingTop: 60,
+    backgroundColor: 'transparent',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
   },
   filterContainer: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   filterTab: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  filterTabActive: {
+    borderColor: 'rgba(6,191,219,0.5)',
+  },
+  filterTabGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
     gap: 6,
-  },
-  filterTabActive: {
-    backgroundColor: '#dbeafe',
   },
   filterTabText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
   },
   filterTabTextActive: {
-    color: '#3b82f6',
+    color: '#06bfdb',
   },
   scrollView: {
     flex: 1,
@@ -352,25 +340,24 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#374151',
+    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: 'rgba(255,255,255,0.5)',
     textAlign: 'center',
   },
   reportCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  cardGradient: {
+    padding: 16,
   },
   reportHeader: {
     flexDirection: 'row',
@@ -380,7 +367,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -391,7 +377,7 @@ const styles = StyleSheet.create({
   reportTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 4,
   },
   reportMeta: {
@@ -401,13 +387,13 @@ const styles = StyleSheet.create({
   },
   reportDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
   },
   speciesTag: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: '#eff6ff',
+    backgroundColor: 'rgba(59,130,246,0.2)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -421,7 +407,7 @@ const styles = StyleSheet.create({
   },
   reportDescription: {
     fontSize: 14,
-    color: '#4b5563',
+    color: 'rgba(255,255,255,0.7)',
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -432,7 +418,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: 'rgba(255,255,255,0.1)',
   },
   locationTag: {
     flexDirection: 'row',
@@ -441,7 +427,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
   },
   severityBadge: {
     flexDirection: 'row',
@@ -464,17 +450,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#f9fafb',
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
     gap: 6,
   },
   actionButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#3b82f6',
+    color: '#06bfdb',
   },
 });
 
 export default MyReports;
-

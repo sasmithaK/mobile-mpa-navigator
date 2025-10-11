@@ -10,6 +10,7 @@ import {
   StatusBar,
   Image
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { 
   Leaf, 
   Fish, 
@@ -29,11 +30,10 @@ import {
   FileText,
   Clock
 } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
-// TypeScript interfaces
 interface EducationalTopic {
   id: number;
   title: string;
@@ -53,6 +53,7 @@ interface Stat {
 }
 
 const EcoComplianceHub: React.FC = () => {
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState<string>('education');
   const scrollY = new Animated.Value(0);
 
@@ -129,10 +130,8 @@ const EcoComplianceHub: React.FC = () => {
       readTime: '9 min read',
       image: 'nav6.jpg'
     },
-    
   ];
 
-  
   const stats: Stat[] = [
     { label: 'Protected Areas', value: '15,000+', icon: Shield },
     { label: 'Species Protected', value: '8,500+', icon: Fish },
@@ -140,28 +139,22 @@ const EcoComplianceHub: React.FC = () => {
     { label: 'Educational Resources', value: '200+', icon: BookOpen }
   ];
 
-  const navigation = useNavigation();
   const handleTopicPress = (topic: EducationalTopic): void => {
-  // navigation.navigate('TopicDetail', { topic });
-  
-};
-
-  // const handleTopicPress = (topic: EducationalTopic): void => {
-  //   // Navigate to detailed topic page
-  //   console.log('Navigate to:', topic.title);
-    
-  // };
+    console.log('Navigate to:', topic.title);
+  };
 
   const handleQuickAction = (action: string): void => {
     console.log('Quick action:', action);
-    
   };
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
+      <StatusBar barStyle="light-content" />
       
-      </Animated.View>
+      <LinearGradient
+        colors={['#0a1929', '#1a365d', '#0f172a']}
+        style={styles.gradient}
+      />
 
       <Animated.ScrollView
         style={styles.scrollView}
@@ -174,11 +167,16 @@ const EcoComplianceHub: React.FC = () => {
         )}
       >
         {/* Hero Section */}
-        <View style={styles.heroContainer}>
-          <View style={styles.heroGradient} />
+        <LinearGradient
+          colors={['rgba(6,191,219,0.2)', 'rgba(34,211,238,0.1)']}
+          style={styles.heroContainer}
+        >
+          <View style={styles.heroGlow} />
           
           <View style={styles.heroContent}>
-            <Leaf size={40} color="#13c72eff" />
+            <View style={styles.heroIconContainer}>
+              <Leaf size={40} color="#06bfdb" />
+            </View>
             <Text style={styles.heroTitle}>
               Eco-Compliance & Awareness Hub
             </Text>
@@ -189,19 +187,19 @@ const EcoComplianceHub: React.FC = () => {
             <View style={styles.heroStats}>
               {stats.map((stat: Stat, index: number) => (
                 <View key={index} style={styles.heroStatItem}>
-                  <stat.icon size={20} color="#10b981" />
+                  <stat.icon size={20} color="#22d3ee" />
                   <Text style={styles.heroStatValue}>{stat.value}</Text>
                   <Text style={styles.heroStatLabel}>{stat.label}</Text>
                 </View>
               ))}
             </View>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Featured Content Section */}
         <View style={styles.featuredSection}>
           <View style={styles.sectionHeader}>
-            <BookOpen size={24} color="#1f2937" />
+            <BookOpen size={24} color="#06bfdb" />
             <Text style={styles.sectionTitle}>Featured Learning Topics</Text>
           </View>
           <Text style={styles.sectionSubtitle}>
@@ -221,17 +219,16 @@ const EcoComplianceHub: React.FC = () => {
               onPress={() => handleTopicPress(topic)}
               activeOpacity={0.8}
             >
+              <LinearGradient
+                colors={[topic.gradient[0] + '20', topic.gradient[1] + '10']}
+                style={styles.cardGradient}
+              />
               
-              <View style={[styles.cardGradient, { 
-                backgroundColor: topic.gradient[0] + '20'
-              }]} />
-              
-              {/* Card Content */}
               <View style={styles.cardContent}>
-               
                 <View style={styles.cardHeader}>
                   <View style={[styles.cardIconContainer, {
-                    backgroundColor: topic.color + '20'
+                    backgroundColor: topic.color + '20',
+                    borderColor: topic.color + '40'
                   }]}>
                     <topic.icon size={24} color={topic.color} />
                   </View>
@@ -239,44 +236,26 @@ const EcoComplianceHub: React.FC = () => {
                     <Text style={styles.cardTitle}>{topic.title}</Text>
                     <Text style={styles.cardSubtitle}>{topic.subtitle}</Text>
                   </View>
-                  <ChevronRight size={20} color="#9ca3af" />
+                  <ChevronRight size={20} color="rgba(255,255,255,0.4)" />
                 </View>
 
-                {/* Image Placeholder with images */}
-                <View style={styles.cardImagePlaceholder}>
-                  <Camera size={32} color="#9ca3af" />
-                  <Text style={styles.imagePlaceholderText}>
-                    Add {topic.image} to assets/images/
-                  </Text>
-                </View>
-                
                 <Image
                   source={require('../../assets/images/nav6.jpg')}
                   style={styles.cardImage}
                   resizeMode="cover"
                 />
-                
-                {/* When you add real images, replace the above with:
-                <Image
-                  source={require(`../../../assets/images/${topic.image}`)}
-                  style={styles.cardImage}
-                  resizeMode="cover"
-                />
-                */}
 
-                {/* Card Description */}
                 <Text style={styles.cardDescription}>
                   {topic.description}
                 </Text>
 
-                {/* Card Footer */}
                 <View style={styles.cardFooter}>
                   <View style={styles.readTimeContainer}>
-                    <Clock size={14} color="#6b7280" />
+                    <Clock size={14} color="rgba(255,255,255,0.6)" />
                     <Text style={styles.readTime}>{topic.readTime}</Text>
                   </View>
                   <View style={[styles.topicBadge, {
-                    backgroundColor: topic.color + '15'
+                    backgroundColor: topic.color + '20'
                   }]}>
                     <Text style={[styles.badgeText, { color: topic.color }]}>
                       Learn More
@@ -288,7 +267,6 @@ const EcoComplianceHub: React.FC = () => {
           ))}
         </View>
 
-        
         <View style={styles.quickActionsSection}>
           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
           
@@ -297,35 +275,57 @@ const EcoComplianceHub: React.FC = () => {
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('videos')}
             >
-              <PlayCircle size={24} color="#3b82f6" />
-              <Text style={styles.quickActionText}>Watch Videos</Text>
+              <LinearGradient
+                colors={['rgba(59,130,246,0.2)', 'rgba(59,130,246,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <PlayCircle size={24} color="#3b82f6" />
+                <Text style={styles.quickActionText}>Watch Videos</Text>
+              </LinearGradient>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('quiz')}
             >
-              <Award size={24} color="#f59e0b" />
-              <Text style={styles.quickActionText}>Take Quiz</Text>
+              <LinearGradient
+                colors={['rgba(245,158,11,0.2)', 'rgba(245,158,11,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <Award size={24} color="#f59e0b" />
+                <Text style={styles.quickActionText}>Take Quiz</Text>
+              </LinearGradient>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('maps')}
             >
-              <MapPin size={24} color="#10b981" />
-              <Text style={styles.quickActionText}>Find MPAs</Text>
+              <LinearGradient
+                colors={['rgba(16,185,129,0.2)', 'rgba(16,185,129,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <MapPin size={24} color="#10b981" />
+                <Text style={styles.quickActionText}>Find MPAs</Text>
+              </LinearGradient>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('report')}
             >
-              <AlertTriangle size={24} color="#ef4444" />
-              <Text style={styles.quickActionText}>Report Issue</Text>
+              <LinearGradient
+                colors={['rgba(239,68,68,0.2)', 'rgba(239,68,68,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <AlertTriangle size={24} color="#ef4444" />
+                <Text style={styles.quickActionText}>Report Issue</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
+
+        <View style={{ height: 40 }} />
       </Animated.ScrollView>
     </View>
   );
@@ -334,59 +334,63 @@ const EcoComplianceHub: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#0a1929',
   },
-  headerContainer: {
+  gradient: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    paddingTop: StatusBar.currentHeight || 0,
+    width: '100%',
+    height: '100%',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 120, // Space for header
+    paddingTop: 60,
   },
   
-  // Hero Section Styles
+  // Hero Section
   heroContainer: {
-    backgroundColor: '#ffffff',
     margin: 16,
     borderRadius: 24,
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(6,191,219,0.3)',
   },
-  heroGradient: {
+  heroGlow: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 6,
-    backgroundColor: '#10b981',
+    top: -100,
+    right: -100,
+    width: 256,
+    height: 256,
+    borderRadius: 128,
+    backgroundColor: 'rgba(6,191,219,0.1)',
   },
   heroContent: {
     padding: 24,
     alignItems: 'center',
   },
+  heroIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(6,191,219,0.2)',
+    borderWidth: 2,
+    borderColor: '#06bfdb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
   heroTitle: {
     fontSize: 26,
     fontWeight: '700',
     textAlign: 'center',
-    color: '#1f2937',
-    marginTop: 16,
+    color: '#fff',
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
@@ -399,25 +403,26 @@ const styles = StyleSheet.create({
   },
   heroStatItem: {
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 16,
     borderRadius: 16,
     margin: 4,
     minWidth: width * 0.2,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   heroStatValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginTop: 8,
   },
   heroStatLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
     marginTop: 4,
     textAlign: 'center',
   },
-
 
   // Section Headers
   featuredSection: {
@@ -432,15 +437,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginLeft: 8,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
     lineHeight: 20,
   },
-
 
   // Cards Container
   cardsContainer: {
@@ -450,16 +454,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topicCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 20,
     marginBottom: 16,
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   leftCard: {
     width: width * 0.44,
@@ -489,6 +490,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+    borderWidth: 1,
   },
   cardHeaderText: {
     flex: 1,
@@ -496,29 +498,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 2,
   },
   cardSubtitle: {
     fontSize: 12,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
   },
-  cardImagePlaceholder: {
-    height: 100,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  imagePlaceholderText: {
-    fontSize: 10,
-    color: '#9ca3af',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-
-  // Style images
   cardImage: {
     width: '100%',
     height: 100,
@@ -527,7 +513,7 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     fontSize: 13,
-    color: '#4b5563',
+    color: 'rgba(255,255,255,0.7)',
     lineHeight: 18,
     marginBottom: 16,
   },
@@ -542,7 +528,7 @@ const styles = StyleSheet.create({
   },
   readTime: {
     fontSize: 11,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
     marginLeft: 4,
   },
   topicBadge: {
@@ -562,7 +548,7 @@ const styles = StyleSheet.create({
   quickActionsTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 16,
   },
   quickActionsGrid: {
@@ -571,22 +557,22 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   quickActionCard: {
-    backgroundColor: '#ffffff',
     width: width * 0.21,
     aspectRatio: 1,
     borderRadius: 16,
+    marginBottom: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  quickActionGradient: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   quickActionText: {
     fontSize: 11,
-    color: '#4b5563',
+    color: '#fff',
     marginTop: 8,
     textAlign: 'center',
     fontWeight: '500',

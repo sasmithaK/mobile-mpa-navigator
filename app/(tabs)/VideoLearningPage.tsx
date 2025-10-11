@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -32,10 +31,9 @@ import {
   Anchor
 } from 'lucide-react-native';
 import { WebView } from 'react-native-webview';
-
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
-
 
 interface Video {
   id: number;
@@ -70,7 +68,7 @@ const VideoLearningPage: React.FC = () => {
       id: 1,
       name: 'Marine Biodiversity',
       icon: Fish,
-      color: '#3b82f6',
+      color: '#06bfdb',
       videos: [
         {
           id: 1,
@@ -256,7 +254,7 @@ const VideoLearningPage: React.FC = () => {
       id: 5,
       name: 'Ocean Exploration',
       icon: Waves,
-      color: '#06b6d4',
+      color: '#22d3ee',
       videos: [
         {
           id: 15,
@@ -310,21 +308,26 @@ const VideoLearningPage: React.FC = () => {
       case 'Beginner': return '#10b981';
       case 'Intermediate': return '#f59e0b';
       case 'Advanced': return '#ef4444';
-      default: return '#6b7280';
+      default: return '#93c5fd';
     }
   };
 
   const toggleFavorite = (video: Video): void => {
-  const isFavorited = favorites.some(fav => fav.id === video.id);
-  if (isFavorited) {
-    setFavorites(prev => prev.filter(fav => fav.id !== video.id));
-  } else {
-    setFavorites(prev => [...prev, video]);
-  }
-};
+    const isFavorited = favorites.some(fav => fav.id === video.id);
+    if (isFavorited) {
+      setFavorites(prev => prev.filter(fav => fav.id !== video.id));
+    } else {
+      setFavorites(prev => [...prev, video]);
+    }
+  };
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#0a1929', '#1a365d', '#0f172a']}
+        style={styles.gradient}
+      />
+
       <Animated.View style={styles.headerContainer}>
       </Animated.View>
 
@@ -340,10 +343,13 @@ const VideoLearningPage: React.FC = () => {
       >
         {/* Hero Banner */}
         <View style={styles.heroBanner}>
-          <View style={styles.heroOverlay} />
+          <LinearGradient
+            colors={['rgba(6, 191, 219, 0.3)', 'rgba(6, 191, 219, 0.05)']}
+            style={styles.heroGradient}
+          />
           <View style={styles.heroContent}>
             <View style={styles.heroIconContainer}>
-              <Film size={48} color="#fff" />
+              <Film size={48} color="#06bfdb" />
             </View>
             <Text style={styles.heroTitle}>Ocean Learning Hub</Text>
             <Text style={styles.heroSubtitle}>
@@ -369,7 +375,10 @@ const VideoLearningPage: React.FC = () => {
             {/* Category Header */}
             <View style={styles.categoryHeader}>
               <View style={styles.categoryTitleRow}>
-                <View style={[styles.categoryIconBox, { backgroundColor: category.color + '20' }]}>
+                <View style={[styles.categoryIconBox, { 
+                  backgroundColor: category.color + '20',
+                  borderColor: category.color + '40'
+                }]}>
                   <category.icon size={20} color={category.color} />
                 </View>
                 <Text style={styles.categoryTitle}>{category.name}</Text>
@@ -379,7 +388,7 @@ const VideoLearningPage: React.FC = () => {
               </View>
               <TouchableOpacity style={styles.seeAllButton}>
                 <Text style={styles.seeAllText}>See All</Text>
-                <ChevronRight size={16} color="#9ca3af" />
+                <ChevronRight size={16} color="#93c5fd" />
               </TouchableOpacity>
             </View>
 
@@ -399,56 +408,60 @@ const VideoLearningPage: React.FC = () => {
                   onPress={() => handleVideoPress(video)}
                   activeOpacity={0.9}
                 >
-                  {/* Thumbnail */}
-                  <View style={styles.thumbnailContainer}>
-                    {/* Placeholder - Replace with actual image */}
-                    <View style={[styles.thumbnailPlaceholder, { 
-                      backgroundColor: category.color + '30' 
-                    }]}>
-                      <PlayCircle size={48} color="#fff" opacity={0.8} />
-                    </View>
-                    
-                    {/* Duration Badge */}
-                    <View style={styles.durationBadge}>
-                      <Clock size={12} color="#fff" />
-                      <Text style={styles.durationText}>{video.duration}</Text>
-                    </View>
-
-                    {/* Play Overlay */}
-                    <View style={styles.playOverlay}>
-                      <View style={styles.playButton}>
-                        <Play size={24} color="#fff" />
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Video Info */}
-                  <View style={styles.videoInfo}>
-                    <Text style={styles.videoTitle} numberOfLines={2}>
-                      {video.title}
-                    </Text>
-                    <Text style={styles.videoDescription} numberOfLines={2}>
-                      {video.description}
-                    </Text>
-                    
-                    {/* Video Meta */}
-                    <View style={styles.videoMeta}>
-                      <View style={styles.metaItem}>
-                        <Eye size={14} color="#9ca3af" />
-                        <Text style={styles.metaText}>{video.views}</Text>
-                      </View>
-                      <View style={[styles.difficultyBadge, { 
-                        backgroundColor: getDifficultyColor(video.difficulty) + '20',
-                        borderColor: getDifficultyColor(video.difficulty)
+                  <LinearGradient
+                    colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.03)']}
+                    style={styles.cardGradient}
+                  >
+                    {/* Thumbnail */}
+                    <View style={styles.thumbnailContainer}>
+                      <View style={[styles.thumbnailPlaceholder, { 
+                        backgroundColor: category.color + '30' 
                       }]}>
-                        <Text style={[styles.difficultyText, { 
-                          color: getDifficultyColor(video.difficulty) 
-                        }]}>
-                          {video.difficulty}
-                        </Text>
+                        <PlayCircle size={48} color="#fff" opacity={0.8} />
+                      </View>
+                      
+                      {/* Duration Badge */}
+                      <View style={styles.durationBadge}>
+                        <Clock size={12} color="#fff" />
+                        <Text style={styles.durationText}>{video.duration}</Text>
+                      </View>
+
+                      {/* Play Overlay */}
+                      <View style={styles.playOverlay}>
+                        <View style={styles.playButton}>
+                          <Play size={24} color="#06bfdb" />
+                        </View>
                       </View>
                     </View>
-                  </View>
+
+                    {/* Video Info */}
+                    <View style={styles.videoInfo}>
+                      <Text style={styles.videoTitle} numberOfLines={2}>
+                        {video.title}
+                      </Text>
+                      <Text style={styles.videoDescription} numberOfLines={2}>
+                        {video.description}
+                      </Text>
+                      
+                      {/* Video Meta */}
+                      <View style={styles.videoMeta}>
+                        <View style={styles.metaItem}>
+                          <Eye size={14} color="#93c5fd" />
+                          <Text style={styles.metaText}>{video.views}</Text>
+                        </View>
+                        <View style={[styles.difficultyBadge, { 
+                          backgroundColor: getDifficultyColor(video.difficulty) + '20',
+                          borderColor: getDifficultyColor(video.difficulty)
+                        }]}>
+                          <Text style={[styles.difficultyText, { 
+                            color: getDifficultyColor(video.difficulty) 
+                          }]}>
+                            {video.difficulty}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -464,86 +477,96 @@ const VideoLearningPage: React.FC = () => {
         onRequestClose={closeVideoModal}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {/* Close Button */}
-            <TouchableOpacity style={styles.closeButton} onPress={closeVideoModal}>
-              <X size={24} color="#fff" />
-            </TouchableOpacity>
+          <LinearGradient
+            colors={['#0a1929', '#1a365d', '#0f172a']}
+            style={styles.modalGradient}
+          >
+            <View style={styles.modalContent}>
+              {/* Close Button */}
+              <TouchableOpacity style={styles.closeButton} onPress={closeVideoModal}>
+                <X size={24} color="#fff" />
+              </TouchableOpacity>
 
-            {selectedVideo && (
-              <>
-                {/* Video Player Placeholder */}
-                <View style={styles.videoPlayerContainer}>
-                  {selectedVideo?.videoUrl && (
-  <WebView
-    source={{ uri: selectedVideo.videoUrl }}
-    style={styles.videoPlayerWebView}
-    allowsInlineMediaPlayback
-    mediaPlaybackRequiresUserAction={false}
-    javaScriptEnabled
-    domStorageEnabled
-  />
-)}
-                </View>
-
-                {/* Video Details */}
-                <View style={styles.modalVideoDetails}>
-                  <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>{selectedVideo.title}</Text>
-                    <View style={styles.modalActions}>
-                      <TouchableOpacity 
-  style={styles.actionButton} 
-  onPress={() => selectedVideo && toggleFavorite(selectedVideo)}
->
-  <Bookmark 
-    size={20} 
-    color={favorites.some(fav => fav.id === selectedVideo?.id) ? '#10b981' : '#fff'} 
-    fill={favorites.some(fav => fav.id === selectedVideo?.id) ? '#10b981' : 'none'}
-  />
-</TouchableOpacity>
-
-                      <TouchableOpacity style={styles.actionButton}>
-                        <Share2 size={20} color="#fff" />
-                      </TouchableOpacity>
-                    </View>
+              {selectedVideo && (
+                <>
+                  {/* Video Player Placeholder */}
+                  <View style={styles.videoPlayerContainer}>
+                    {selectedVideo?.videoUrl && (
+                      <WebView
+                        source={{ uri: selectedVideo.videoUrl }}
+                        style={styles.videoPlayerWebView}
+                        allowsInlineMediaPlayback
+                        mediaPlaybackRequiresUserAction={false}
+                        javaScriptEnabled
+                        domStorageEnabled
+                      />
+                    )}
                   </View>
 
-                  <View style={styles.modalMetaRow}>
-                    <View style={styles.modalMetaItem}>
-                      <Eye size={16} color="#9ca3af" />
-                      <Text style={styles.modalMetaText}>{selectedVideo.views} views</Text>
+                  {/* Video Details */}
+                  <View style={styles.modalVideoDetails}>
+                    <View style={styles.modalHeader}>
+                      <Text style={styles.modalTitle}>{selectedVideo.title}</Text>
+                      <View style={styles.modalActions}>
+                        <TouchableOpacity 
+                          style={styles.actionButton} 
+                          onPress={() => selectedVideo && toggleFavorite(selectedVideo)}
+                        >
+                          <Bookmark 
+                            size={20} 
+                            color={favorites.some(fav => fav.id === selectedVideo?.id) ? '#10b981' : '#fff'} 
+                            fill={favorites.some(fav => fav.id === selectedVideo?.id) ? '#10b981' : 'none'}
+                          />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.actionButton}>
+                          <Share2 size={20} color="#fff" />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View style={styles.modalMetaDivider} />
-                    <View style={styles.modalMetaItem}>
-                      <Clock size={16} color="#9ca3af" />
-                      <Text style={styles.modalMetaText}>{selectedVideo.duration}</Text>
-                    </View>
-                    <View style={styles.modalMetaDivider} />
-                    <View style={[styles.modalDifficultyBadge, {
-                      backgroundColor: getDifficultyColor(selectedVideo.difficulty) + '20',
-                      borderColor: getDifficultyColor(selectedVideo.difficulty)
-                    }]}>
-                      <Text style={[styles.modalDifficultyText, {
-                        color: getDifficultyColor(selectedVideo.difficulty)
+
+                    <View style={styles.modalMetaRow}>
+                      <View style={styles.modalMetaItem}>
+                        <Eye size={16} color="#93c5fd" />
+                        <Text style={styles.modalMetaText}>{selectedVideo.views} views</Text>
+                      </View>
+                      <View style={styles.modalMetaDivider} />
+                      <View style={styles.modalMetaItem}>
+                        <Clock size={16} color="#93c5fd" />
+                        <Text style={styles.modalMetaText}>{selectedVideo.duration}</Text>
+                      </View>
+                      <View style={styles.modalMetaDivider} />
+                      <View style={[styles.modalDifficultyBadge, {
+                        backgroundColor: getDifficultyColor(selectedVideo.difficulty) + '20',
+                        borderColor: getDifficultyColor(selectedVideo.difficulty)
                       }]}>
-                        {selectedVideo.difficulty}
-                      </Text>
+                        <Text style={[styles.modalDifficultyText, {
+                          color: getDifficultyColor(selectedVideo.difficulty)
+                        }]}>
+                          {selectedVideo.difficulty}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text style={styles.modalDescription}>
+                      {selectedVideo.description}
+                    </Text>
+
+                    <View style={styles.modalCategoryTag}>
+                      <LinearGradient
+                        colors={['rgba(6, 191, 219, 0.2)', 'rgba(6, 191, 219, 0.1)']}
+                        style={styles.categoryTagGradient}
+                      >
+                        <Text style={styles.modalCategoryText}>
+                          Category: {selectedVideo.category}
+                        </Text>
+                      </LinearGradient>
                     </View>
                   </View>
-
-                  <Text style={styles.modalDescription}>
-                    {selectedVideo.description}
-                  </Text>
-
-                  <View style={styles.modalCategoryTag}>
-                    <Text style={styles.modalCategoryText}>
-                      Category: {selectedVideo.category}
-                    </Text>
-                  </View>
-                </View>
-              </>
-            )}
-          </View>
+                </>
+              )}
+            </View>
+          </LinearGradient>
         </View>
       </Modal>
     </View>
@@ -553,7 +576,12 @@ const VideoLearningPage: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a', // Dark Netflix-style background
+    backgroundColor: '#0a1929',
+  },
+  gradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   headerContainer: {
     position: 'absolute',
@@ -567,23 +595,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 120,
+    paddingTop: 60,
     paddingBottom: 40,
   },
 
   // Hero Banner
   heroBanner: {
     height: 280,
-    marginHorizontal: 16,
+    marginHorizontal: 24,
     marginBottom: 32,
+    marginTop: 20,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: '#1e293b',
     position: 'relative',
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
   },
-  heroOverlay: {
+  heroGradient: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'linear-gradient(180deg, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.9) 100%)',
   },
   heroContent: {
     flex: 1,
@@ -595,12 +624,12 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    backgroundColor: 'rgba(6, 191, 219, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
     borderWidth: 2,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderColor: 'rgba(6, 191, 219, 0.4)',
   },
   heroTitle: {
     fontSize: 32,
@@ -608,13 +637,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#94a3b8',
+    color: '#93c5fd',
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 24,
+    fontWeight: '500',
   },
   heroStats: {
     flexDirection: 'row',
@@ -627,11 +658,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   heroStatText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     marginLeft: 6,
   },
   heroDivider: {
@@ -649,7 +682,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     marginBottom: 16,
   },
   categoryTitleRow: {
@@ -663,54 +696,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+    borderWidth: 1,
   },
   categoryTitle: {
     fontSize: 22,
     fontWeight: '700',
     color: '#fff',
     marginRight: 8,
+    letterSpacing: 0.3,
   },
   videoCountBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(6, 191, 219, 0.15)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
   },
   videoCountText: {
-    color: '#94a3b8',
+    color: '#06bfdb',
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   seeAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   seeAllText: {
-    color: '#9ca3af',
+    color: '#93c5fd',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
     marginRight: 4,
   },
 
   // Video Cards
   videoScrollContainer: {
-    paddingLeft: 16,
-    paddingRight: 8,
+    paddingLeft: 24,
+    paddingRight: 16,
   },
   videoCard: {
     width: width * 0.75,
     marginRight: 16,
-    backgroundColor: '#1e293b',
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: '#06bfdb',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   firstVideoCard: {
     // Special styling for first card if needed
+  },
+  cardGradient: {
+    flex: 1,
   },
   thumbnailContainer: {
     width: '100%',
@@ -733,11 +774,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   durationText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     marginLeft: 4,
   },
   playOverlay: {
@@ -754,6 +797,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.95)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#06bfdb',
   },
   videoInfo: {
     padding: 16,
@@ -767,9 +812,10 @@ const styles = StyleSheet.create({
   },
   videoDescription: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: '#93c5fd',
     lineHeight: 20,
     marginBottom: 12,
+    fontWeight: '500',
   },
   videoMeta: {
     flexDirection: 'row',
@@ -781,10 +827,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metaText: {
-    color: '#9ca3af',
+    color: '#93c5fd',
     fontSize: 13,
     marginLeft: 6,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   difficultyBadge: {
     paddingHorizontal: 10,
@@ -800,12 +846,12 @@ const styles = StyleSheet.create({
   // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
-    justifyContent: 'center',
+  },
+  modalGradient: {
+    flex: 1,
   },
   modalContent: {
     flex: 1,
-    backgroundColor: '#0f172a',
   },
   closeButton: {
     position: 'absolute',
@@ -814,10 +860,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(6, 191, 219, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.4)',
   },
   videoPlayerContainer: {
     width: '100%',
@@ -825,22 +873,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     marginTop: 100,
   },
-  videoPlayerPlaceholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  videoPlayerText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
-  },
-  videoPlayerSubtext: {
-    color: '#9ca3af',
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: 'center',
+  videoPlayerWebView: {
+    width: '100%',
+    height: 250,
+    backgroundColor: '#000',
   },
   modalVideoDetails: {
     padding: 20,
@@ -854,10 +890,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     flex: 1,
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#fff',
     lineHeight: 30,
     marginRight: 12,
+    letterSpacing: 0.3,
   },
   modalActions: {
     flexDirection: 'row',
@@ -866,10 +903,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(6, 191, 219, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
   },
   modalMetaRow: {
     flexDirection: 'row',
@@ -877,20 +916,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     flexWrap: 'wrap',
   },
-  videoPlayerWebView: {
-  width: '100%',
-  height: 250,
-  backgroundColor: '#000',
-},
   modalMetaItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   modalMetaText: {
-    color: '#9ca3af',
+    color: '#93c5fd',
     fontSize: 14,
     marginLeft: 6,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   modalMetaDivider: {
     width: 1,
@@ -910,24 +944,27 @@ const styles = StyleSheet.create({
   },
   modalDescription: {
     fontSize: 16,
-    color: '#cbd5e1',
+    color: 'rgba(255, 255, 255, 0.85)',
     lineHeight: 24,
     marginBottom: 16,
+    fontWeight: '500',
   },
   modalCategoryTag: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.4)',
+  },
+  categoryTagGradient: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
   },
   modalCategoryText: {
-    color: '#3b82f6',
+    color: '#06bfdb',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-});
+  });
 
 export default VideoLearningPage;
