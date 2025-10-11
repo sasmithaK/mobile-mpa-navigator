@@ -20,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
     { icon: Search, label: 'Ship Tracker', id: 'tracker' },
     { icon: AlertTriangle, label: 'Marine Zones', id: 'zones' },
     { icon: FileText, label: 'Reporting', id: 'reporting' },
+    { icon: FileText, label: 'EduHub', id: 'EduHub' },
     { icon: Info, label: 'About', id: 'about' }
   ];
 
