@@ -26,10 +26,8 @@ import {
   RefreshCcw,
   Video
 } from 'lucide-react-native';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 
-const herovideo = require ("../../assets/videos/videowild.mp4")
+// const herovideo = require ("../../assets/videos/videowild.mp4")
 const { width } = Dimensions.get('window');
 
 // TypeScript interfaces
@@ -421,7 +419,6 @@ const QuizPage: React.FC = () => {
   return (
     <View style={styles.container}>
       <Animated.View style={styles.headerContainer}>
-        <Header activeSection={activeSection} setActiveSection={setActiveSection} />
       </Animated.View>
 
       <Animated.ScrollView
@@ -583,7 +580,6 @@ const QuizPage: React.FC = () => {
           </View>
         )}
 
-        <Footer />
       </Animated.ScrollView>
 
       {/* Completion Modal */}
