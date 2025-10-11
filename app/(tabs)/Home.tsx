@@ -12,12 +12,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router'; // Changed from useNavigation
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
 const Home: React.FC = () => {
-  const router = useRouter(); // Changed from navigation
+  const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('home');
 
@@ -26,10 +26,19 @@ const Home: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Updated navigation handler for Expo Router
   const handleMapNavigation = () => {
     console.log('Navigating to ShipMap...');
-    router.push('/(tabs)/ShipMap'); // Use router.push with file path
+    router.push('/(tabs)/ShipMap');
+  };
+
+  const handleWeatherNavigation = () => {
+    console.log('Navigating to WeatherConditions...');
+    router.push('/(tabs)/WeatherConditions');
+  };
+
+  const handleEcoHubNavigation = () => {
+    console.log('Navigating to EcoComplianceHub...');
+    router.push('/(tabs)/EcoComplianceHub');
   };
 
   const stats = [
@@ -74,6 +83,7 @@ const Home: React.FC = () => {
   const navItems = [
     { id: 'home', icon: 'home', label: 'Home' },
     { id: 'map', icon: 'map', label: 'Map' },
+    { id: 'weather', icon: 'cloud', label: 'Weather' },
     { id: 'education', icon: 'book-open', label: 'Learn' },
     { id: 'profile', icon: 'user', label: 'Profile' },
   ];
@@ -81,6 +91,10 @@ const Home: React.FC = () => {
   const handleNavigation = (tabId: string) => {
     if (tabId === 'map') {
       handleMapNavigation();
+    } else if (tabId === 'weather') {
+      handleWeatherNavigation();
+    } else if (tabId === 'education') {
+      handleEcoHubNavigation();
     } else {
       setActiveTab(tabId);
     }
@@ -90,13 +104,11 @@ const Home: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* Background Gradient */}
       <LinearGradient
         colors={['#0a1929', '#1a365d', '#0f172a']}
         style={styles.gradient}
       />
 
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
@@ -122,7 +134,6 @@ const Home: React.FC = () => {
           </View>
         </View>
 
-        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <Feather name="search" size={20} color="rgba(255,255,255,0.5)" />
           <TextInput
@@ -141,7 +152,6 @@ const Home: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Quick Stats */}
         <View style={styles.statsContainer}>
           {stats.map((stat, i) => (
             <View key={i} style={styles.statCard}>
@@ -152,7 +162,6 @@ const Home: React.FC = () => {
           ))}
         </View>
 
-        {/* Map Navigation Card with Preview */}
         <View style={styles.mapNavSection}>
           <Text style={styles.sectionTitle}>
             <Feather name="navigation" size={20} color="#06bfdb" /> Navigate
@@ -181,15 +190,18 @@ const Home: React.FC = () => {
                 <Text style={styles.gpsText}>GPS Ready • 12 Satellites</Text>
               </View>
             </View>
-            {/* Floating compass indicator */}
             <View style={styles.floatingCompass}>
               <Feather name="compass" size={20} color="#06bfdb" />
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* Weather Info */}
-        <View style={styles.weatherCard}>
+        {/* Weather Card with Navigation */}
+        <TouchableOpacity 
+          style={styles.weatherCard}
+          activeOpacity={0.8}
+          onPress={handleWeatherNavigation}
+        >
           <LinearGradient
             colors={['rgba(99, 102, 241, 0.3)', 'rgba(59, 130, 246, 0.2)']}
             style={styles.weatherGradient}
@@ -197,6 +209,9 @@ const Home: React.FC = () => {
             <View style={styles.weatherHeader}>
               <Feather name="cloud-drizzle" size={28} color="#93c5fd" />
               <Text style={styles.weatherTitle}>Marine Weather</Text>
+              <View style={styles.weatherArrow}>
+                <Feather name="arrow-right" size={20} color="#06bfdb" />
+              </View>
             </View>
             <View style={styles.weatherDetails}>
               <View style={styles.weatherItem}>
@@ -223,22 +238,32 @@ const Home: React.FC = () => {
                 <Text style={styles.conditionText}>Good Conditions for Sailing</Text>
               </View>
             </View>
+            <View style={styles.tapToViewContainer}>
+              <Text style={styles.tapToViewText}>Tap to view detailed forecast</Text>
+            </View>
           </LinearGradient>
-        </View>
+        </TouchableOpacity>
 
-        {/* Educational Hub - Marine News */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Feather name="book-open" size={20} color="#22d3ee" />
             <Text style={styles.sectionTitleText}>Educational Hub</Text>
-            <TouchableOpacity style={styles.viewAllButton}>
+            <TouchableOpacity 
+              style={styles.viewAllButton}
+              onPress={handleEcoHubNavigation}
+            >
               <Text style={styles.viewAllText}>View All</Text>
               <Feather name="arrow-right" size={16} color="#06bfdb" />
             </TouchableOpacity>
           </View>
 
           {newsArticles.map((article) => (
-            <TouchableOpacity key={article.id} style={styles.newsCard} activeOpacity={0.8}>
+            <TouchableOpacity 
+              key={article.id} 
+              style={styles.newsCard} 
+              activeOpacity={0.8}
+              onPress={handleEcoHubNavigation}
+            >
               <Image source={{ uri: article.image }} style={styles.newsImage} />
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']}
@@ -271,7 +296,6 @@ const Home: React.FC = () => {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <LinearGradient
           colors={['rgba(10, 25, 41, 0.98)', 'rgba(15, 23, 42, 0.98)']}
@@ -587,6 +611,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#fff',
+    flex: 1,
+  },
+  weatherArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(6, 191, 219, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   weatherDetails: {
     flexDirection: 'row',
@@ -629,6 +662,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#10b981',
     fontWeight: '600',
+  },
+  tapToViewContainer: {
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  tapToViewText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.5)',
+    fontWeight: '500',
   },
   newsCard: {
     height: 280,

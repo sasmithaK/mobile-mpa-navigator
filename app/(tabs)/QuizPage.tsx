@@ -1,10 +1,8 @@
-// app/tabs/QuizPage.tsx
 import React, { useState } from 'react';
 import {
   ScrollView,
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
@@ -12,6 +10,7 @@ import {
   StatusBar,
   Modal
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { 
   ArrowLeft,
   Award,
@@ -24,13 +23,10 @@ import {
   AlertTriangle,
   Trophy,
   RefreshCcw,
-  Video
 } from 'lucide-react-native';
 
-// const herovideo = require ("../../assets/videos/videowild.mp4")
 const { width } = Dimensions.get('window');
 
-// TypeScript interfaces
 interface QuizCategory {
   id: number;
   name: string;
@@ -45,7 +41,7 @@ interface Question {
   categoryId: number;
   question: string;
   options: string[];
-  correctAnswer: number; // index of correct option
+  correctAnswer: number;
   explanation: string;
 }
 
@@ -56,17 +52,14 @@ interface Answer {
 }
 
 const QuizPage: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<string>('quiz');
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [showResult, setShowResult] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [hasAnswered, setHasAnswered] = useState<boolean>(false);
   const [showCompletionModal, setShowCompletionModal] = useState<boolean>(false);
   const scrollY = new Animated.Value(0);
 
-  // Quiz Categories
   const categories: QuizCategory[] = [
     {
       id: 1,
@@ -110,9 +103,7 @@ const QuizPage: React.FC = () => {
     }
   ];
 
-  // Quiz Questions
   const questions: Question[] = [
-    // Biodiversity Questions (Category 1)
     {
       id: 1,
       categoryId: 1,
@@ -121,222 +112,7 @@ const QuizPage: React.FC = () => {
       correctAnswer: 3,
       explanation: 'Scientists estimate there are over 2 million marine species, though only about 240,000 have been identified and described.'
     },
-    {
-      id: 2,
-      categoryId: 1,
-      question: 'Which marine animal has three hearts?',
-      options: ['Dolphin', 'Octopus', 'Whale', 'Shark'],
-      correctAnswer: 1,
-      explanation: 'Octopuses have three hearts: two pump blood to the gills, and one pumps blood to the rest of the body.'
-    },
-    {
-      id: 3,
-      categoryId: 1,
-      question: 'What percentage of Earth\'s oxygen is produced by ocean phytoplankton?',
-      options: ['20%', '50%', '70%', '90%'],
-      correctAnswer: 1,
-      explanation: 'Ocean phytoplankton produces at least 50% of the planet\'s oxygen, making them crucial for all life on Earth.'
-    },
-    {
-      id: 4,
-      categoryId: 1,
-      question: 'How long can sea turtles hold their breath underwater?',
-      options: ['30 minutes', '2 hours', '5 hours', '10 hours'],
-      correctAnswer: 2,
-      explanation: 'Sea turtles can hold their breath for up to 5 hours when resting or sleeping, though they typically surface more frequently when active.'
-    },
-    {
-      id: 5,
-      categoryId: 1,
-      question: 'What is the largest animal on Earth?',
-      options: ['Great White Shark', 'Blue Whale', 'Elephant', 'Giant Squid'],
-      correctAnswer: 1,
-      explanation: 'The Blue Whale is the largest animal on Earth, reaching lengths of up to 100 feet and weighing up to 200 tons.'
-    },
-    {
-      id: 6,
-      categoryId: 1,
-      question: 'Which ocean zone has the most biodiversity?',
-      options: ['Abyssal Zone', 'Sunlight Zone', 'Twilight Zone', 'Midnight Zone'],
-      correctAnswer: 1,
-      explanation: 'The Sunlight Zone (0-200m) has the most biodiversity due to abundant light for photosynthesis, supporting complex food webs.'
-    },
-
-    // Conservation Questions (Category 2)
-    {
-      id: 7,
-      categoryId: 2,
-      question: 'What does MPA stand for?',
-      options: ['Marine Protection Area', 'Marine Protected Area', 'Marine Preservation Area', 'Marine Public Area'],
-      correctAnswer: 1,
-      explanation: 'MPA stands for Marine Protected Area - regions where human activity is restricted to protect marine ecosystems.'
-    },
-    {
-      id: 8,
-      categoryId: 2,
-      question: 'What percentage of the ocean should be protected by 2030 according to international targets?',
-      options: ['10%', '20%', '30%', '50%'],
-      correctAnswer: 2,
-      explanation: 'The international "30x30" target aims to protect 30% of the ocean by 2030 to preserve biodiversity and ecosystem services.'
-    },
-    {
-      id: 9,
-      categoryId: 2,
-      question: 'Which marine ecosystem is known as the "rainforest of the sea"?',
-      options: ['Kelp Forests', 'Seagrass Beds', 'Coral Reefs', 'Mangroves'],
-      correctAnswer: 2,
-      explanation: 'Coral reefs are called the "rainforest of the sea" because they support 25% of all marine species despite covering less than 1% of the ocean floor.'
-    },
-    {
-      id: 10,
-      categoryId: 2,
-      question: 'How long does it take for coral reefs to recover from severe damage?',
-      options: ['1-2 years', '5-10 years', '10-30 years', '50+ years'],
-      correctAnswer: 2,
-      explanation: 'Coral reefs typically need 10-30 years to recover from severe damage, and some may never fully recover if conditions remain poor.'
-    },
-    {
-      id: 11,
-      categoryId: 2,
-      question: 'What is "ghost fishing"?',
-      options: ['Fishing at night', 'Abandoned fishing gear catching marine life', 'Deep sea fishing', 'Underwater fishing'],
-      correctAnswer: 1,
-      explanation: 'Ghost fishing occurs when abandoned or lost fishing gear continues to trap and kill marine animals for years.'
-    },
-    {
-      id: 12,
-      categoryId: 2,
-      question: 'Which conservation approach involves local communities in management?',
-      options: ['Top-down management', 'Community-based conservation', 'Military enforcement', 'Corporate management'],
-      correctAnswer: 1,
-      explanation: 'Community-based conservation involves local communities in decision-making and management, leading to better outcomes and local support.'
-    },
-
-    // Ocean Pollution Questions (Category 3)
-    {
-      id: 13,
-      categoryId: 3,
-      question: 'How many tons of plastic enter the ocean every year?',
-      options: ['1 million', '5 million', '8 million', '15 million'],
-      correctAnswer: 2,
-      explanation: 'Approximately 8 million tons of plastic waste enter the ocean annually, equivalent to dumping one garbage truck of plastic every minute.'
-    },
-    {
-      id: 14,
-      categoryId: 3,
-      question: 'How long does a plastic bottle take to decompose in the ocean?',
-      options: ['50 years', '100 years', '450 years', '1000 years'],
-      correctAnswer: 2,
-      explanation: 'A plastic bottle takes approximately 450 years to decompose in the ocean, breaking down into harmful microplastics.'
-    },
-    {
-      id: 15,
-      categoryId: 3,
-      question: 'What is the Great Pacific Garbage Patch?',
-      options: ['An island made of garbage', 'A floating mass of marine debris', 'A polluted beach', 'An ocean trench full of waste'],
-      correctAnswer: 1,
-      explanation: 'The Great Pacific Garbage Patch is a massive floating accumulation of marine debris, primarily plastic, between Hawaii and California.'
-    },
-    {
-      id: 16,
-      categoryId: 3,
-      question: 'What causes ocean dead zones?',
-      options: ['Too much salt', 'Excessive nutrients causing oxygen depletion', 'Cold temperatures', 'Deep ocean currents'],
-      correctAnswer: 1,
-      explanation: 'Dead zones are caused by nutrient pollution (especially nitrogen and phosphorus) that triggers algae blooms, which deplete oxygen when they die.'
-    },
-    {
-      id: 17,
-      categoryId: 3,
-      question: 'Which everyday item is a major source of microplastic pollution?',
-      options: ['Glass bottles', 'Synthetic clothing', 'Paper bags', 'Metal cans'],
-      correctAnswer: 1,
-      explanation: 'Synthetic clothing releases microplastic fibers when washed, contributing significantly to ocean microplastic pollution.'
-    },
-
-    // Sustainable Fishing Questions (Category 4)
-    {
-      id: 18,
-      categoryId: 4,
-      question: 'What percentage of global fish stocks are overfished?',
-      options: ['10%', '20%', '35%', '50%'],
-      correctAnswer: 2,
-      explanation: 'Approximately 35% of global fish stocks are overfished, threatening marine ecosystems and food security.'
-    },
-    {
-      id: 19,
-      categoryId: 4,
-      question: 'What is "bycatch"?',
-      options: ['Fish caught by hand', 'Non-target species caught accidentally', 'Fish farming', 'Recreational fishing'],
-      correctAnswer: 1,
-      explanation: 'Bycatch refers to non-target species (like dolphins, turtles, or juvenile fish) caught unintentionally in fishing operations.'
-    },
-    {
-      id: 20,
-      categoryId: 4,
-      question: 'What does the MSC certification indicate?',
-      options: ['Most Sustainable Catch', 'Marine Stewardship Council - sustainable fishing', 'Maximum Safe Consumption', 'Marine Science Center'],
-      correctAnswer: 1,
-      explanation: 'The Marine Stewardship Council (MSC) certification indicates that seafood comes from well-managed, sustainable fisheries.'
-    },
-    {
-      id: 21,
-      categoryId: 4,
-      question: 'What fishing method causes the most habitat damage?',
-      options: ['Line fishing', 'Net fishing', 'Bottom trawling', 'Spear fishing'],
-      correctAnswer: 2,
-      explanation: 'Bottom trawling drags heavy nets across the seafloor, destroying habitats like coral reefs and damaging marine ecosystems.'
-    },
-    {
-      id: 22,
-      categoryId: 4,
-      question: 'What is the purpose of fishing quotas?',
-      options: ['Increase profits', 'Prevent overfishing and allow stock recovery', 'Reduce competition', 'Tax collection'],
-      correctAnswer: 1,
-      explanation: 'Fishing quotas limit catch amounts to prevent overfishing, allowing fish populations to recover and maintain healthy stocks.'
-    },
-
-    // Climate Change Questions (Category 5)
-    {
-      id: 23,
-      categoryId: 5,
-      question: 'What is ocean acidification?',
-      options: ['Pollution making water dirty', 'Increased ocean pH from CO2 absorption', 'Decreased ocean pH from CO2 absorption', 'Salt concentration changes'],
-      correctAnswer: 2,
-      explanation: 'Ocean acidification is the decrease in ocean pH caused by absorption of atmospheric CO2, making it harder for marine organisms to build shells.'
-    },
-    {
-      id: 24,
-      categoryId: 5,
-      question: 'How much has global sea level risen since 1880?',
-      options: ['5-10 cm', '21-24 cm', '50-60 cm', '1 meter'],
-      correctAnswer: 1,
-      explanation: 'Global sea levels have risen 21-24 centimeters since 1880, with the rate of rise accelerating in recent decades.'
-    },
-    {
-      id: 25,
-      categoryId: 5,
-      question: 'What are "blue carbon" ecosystems?',
-      options: ['Deep ocean zones', 'Coastal ecosystems that store carbon', 'Arctic ice regions', 'Cold water currents'],
-      correctAnswer: 1,
-      explanation: 'Blue carbon ecosystems (mangroves, seagrass, salt marshes) store carbon in coastal sediments at rates 10x higher than terrestrial forests.'
-    },
-    {
-      id: 26,
-      categoryId: 5,
-      question: 'What causes coral bleaching?',
-      options: ['Too much sunlight', 'Water temperature stress', 'Lack of food', 'Ocean currents'],
-      correctAnswer: 1,
-      explanation: 'Coral bleaching occurs when water temperatures rise, causing corals to expel their symbiotic algae and turn white, often leading to death.'
-    },
-    {
-      id: 27,
-      categoryId: 5,
-      question: 'How much CO2 has the ocean absorbed from human activities?',
-      options: ['10%', '20%', '30%', '50%'],
-      correctAnswer: 2,
-      explanation: 'The ocean has absorbed about 30% of human-produced CO2, helping to slow climate change but causing ocean acidification.'
-    }
+    // Add more questions here...
   ];
 
   const handleBackPress = (): void => {
@@ -344,11 +120,8 @@ const QuizPage: React.FC = () => {
       setSelectedCategory(null);
       setCurrentQuestionIndex(0);
       setAnswers([]);
-      setShowResult(false);
       setSelectedOption(null);
       setHasAnswered(false);
-    } else {
-      console.log('Navigate back');
     }
   };
 
@@ -356,7 +129,6 @@ const QuizPage: React.FC = () => {
     setSelectedCategory(categoryId);
     setCurrentQuestionIndex(0);
     setAnswers([]);
-    setShowResult(false);
     setSelectedOption(null);
     setHasAnswered(false);
   };
@@ -418,32 +190,36 @@ const QuizPage: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={styles.headerContainer}>
-      </Animated.View>
+      <StatusBar barStyle="light-content" />
+      <LinearGradient colors={['#0a1929', '#1a365d', '#0f172a']} style={styles.gradient} />
 
       <Animated.ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <ArrowLeft size={24} color="#1f2937" />
+          <ArrowLeft size={24} color="#fff" />
           <Text style={styles.backText}>
             {selectedCategory ? 'Back to Categories' : 'Back'}
           </Text>
         </TouchableOpacity>
 
-        {/* Category Selection */}
         {!selectedCategory && (
           <>
-            <View style={styles.heroContainer}>
-              <Award size={48} color="#3b82f6" />
+            <LinearGradient
+              colors={['rgba(6,191,219,0.2)', 'rgba(34,211,238,0.1)']}
+              style={styles.heroContainer}
+            >
+              <View style={styles.heroGlow} />
+              <View style={styles.heroIconContainer}>
+                <Award size={48} color="#06bfdb" />
+              </View>
               <Text style={styles.heroTitle}>Marine Knowledge Quiz</Text>
               <Text style={styles.heroSubtitle}>
                 Test your knowledge and learn about marine conservation
               </Text>
-            </View>
+            </LinearGradient>
 
             <View style={styles.categoriesContainer}>
               <Text style={styles.sectionTitle}>Choose a Category</Text>
@@ -454,26 +230,32 @@ const QuizPage: React.FC = () => {
                   onPress={() => handleCategorySelect(category.id)}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.categoryIcon, { backgroundColor: category.color + '20' }]}>
-                    <category.icon size={32} color={category.color} />
-                  </View>
-                  <View style={styles.categoryContent}>
-                    <Text style={styles.categoryName}>{category.name}</Text>
-                    <Text style={styles.categoryDescription}>{category.description}</Text>
-                    <Text style={styles.questionCount}>
-                      {category.questionCount} Questions
-                    </Text>
-                  </View>
+                  <LinearGradient
+                    colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+                    style={styles.categoryGradient}
+                  >
+                    <View style={[styles.categoryIcon, { 
+                      backgroundColor: category.color + '20',
+                      borderColor: category.color + '40'
+                    }]}>
+                      <category.icon size={32} color={category.color} />
+                    </View>
+                    <View style={styles.categoryContent}>
+                      <Text style={styles.categoryName}>{category.name}</Text>
+                      <Text style={styles.categoryDescription}>{category.description}</Text>
+                      <Text style={styles.questionCount}>
+                        {category.questionCount} Questions
+                      </Text>
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
               ))}
             </View>
           </>
         )}
 
-        {/* Quiz Questions */}
         {selectedCategory && currentQuestion && (
           <View style={styles.quizContainer}>
-            {/* Progress Bar */}
             <View style={styles.progressContainer}>
               <View style={styles.progressBar}>
                 <View 
@@ -491,105 +273,111 @@ const QuizPage: React.FC = () => {
               </Text>
             </View>
 
-            {/* Question Card */}
             <View style={styles.questionCard}>
-              <View style={[styles.questionHeader, { backgroundColor: selectedCategoryData?.color + '10' }]}>
-                <Text style={styles.questionNumber}>Question {currentQuestionIndex + 1}</Text>
-              </View>
-              <Text style={styles.questionText}>{currentQuestion.question}</Text>
-
-              {/* Options */}
-              <View style={styles.optionsContainer}>
-                {currentQuestion.options.map((option, index) => {
-                  const isSelected = selectedOption === index;
-                  const isCorrect = index === currentQuestion.correctAnswer;
-                  const showCorrect = hasAnswered && isCorrect;
-                  const showWrong = hasAnswered && isSelected && !isCorrect;
-
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.optionButton,
-                        isSelected && styles.optionSelected,
-                        showCorrect && styles.optionCorrect,
-                        showWrong && styles.optionWrong
-                      ]}
-                      onPress={() => handleAnswerSelect(index)}
-                      disabled={hasAnswered}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={[
-                        styles.optionText,
-                        isSelected && styles.optionTextSelected,
-                        showCorrect && styles.optionTextCorrect,
-                        showWrong && styles.optionTextWrong
-                      ]}>
-                        {option}
-                      </Text>
-                      {showCorrect && <CheckCircle2 size={24} color="#10b981" />}
-                      {showWrong && <XCircle size={24} color="#ef4444" />}
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Answer Feedback */}
-              {hasAnswered && (
-                <View style={[
-                  styles.feedbackContainer,
-                  selectedOption === currentQuestion.correctAnswer 
-                    ? styles.feedbackCorrect 
-                    : styles.feedbackWrong
-                ]}>
-                  {selectedOption === currentQuestion.correctAnswer ? (
-                    <>
-                      <CheckCircle2 size={28} color="#10b981" />
-                      <View style={styles.feedbackContent}>
-                        <Text style={styles.feedbackTitle}>Good Job! 🎉</Text>
-                        <Text style={styles.feedbackText}>{currentQuestion.explanation}</Text>
-                      </View>
-                    </>
-                  ) : (
-                    <>
-                      <XCircle size={28} color="#ef4444" />
-                      <View style={styles.feedbackContent}>
-                        <Text style={styles.feedbackTitle}>Not Quite Right</Text>
-                        <Text style={styles.feedbackText}>
-                          The correct answer is: {currentQuestion.options[currentQuestion.correctAnswer]}
-                        </Text>
-                        <Text style={styles.feedbackExplanation}>{currentQuestion.explanation}</Text>
-                      </View>
-                    </>
-                  )}
+              <LinearGradient
+                colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+                style={styles.questionGradient}
+              >
+                <View style={[styles.questionHeader, { backgroundColor: selectedCategoryData?.color + '20' }]}>
+                  <Text style={styles.questionNumber}>Question {currentQuestionIndex + 1}</Text>
                 </View>
-              )}
+                <Text style={styles.questionText}>{currentQuestion.question}</Text>
 
-              {/* Next Button */}
-              {hasAnswered && (
-                <TouchableOpacity
-                  style={[styles.nextButton, { backgroundColor: selectedCategoryData?.color }]}
-                  onPress={handleNextQuestion}
-                >
-                  <Text style={styles.nextButtonText}>
-                    {currentQuestionIndex < currentQuestions.length - 1 ? 'Next Question' : 'Finish Quiz'}
-                  </Text>
-                </TouchableOpacity>
-              )}
+                <View style={styles.optionsContainer}>
+                  {currentQuestion.options.map((option, index) => {
+                    const isSelected = selectedOption === index;
+                    const isCorrect = index === currentQuestion.correctAnswer;
+                    const showCorrect = hasAnswered && isCorrect;
+                    const showWrong = hasAnswered && isSelected && !isCorrect;
+
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.optionButton,
+                          isSelected && styles.optionSelected,
+                          showCorrect && styles.optionCorrect,
+                          showWrong && styles.optionWrong
+                        ]}
+                        onPress={() => handleAnswerSelect(index)}
+                        disabled={hasAnswered}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[
+                          styles.optionText,
+                          (isSelected || showCorrect || showWrong) && styles.optionTextActive
+                        ]}>
+                          {option}
+                        </Text>
+                        {showCorrect && <CheckCircle2 size={24} color="#10b981" />}
+                        {showWrong && <XCircle size={24} color="#ef4444" />}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {hasAnswered && (
+                  <View style={[
+                    styles.feedbackContainer,
+                    { backgroundColor: selectedOption === currentQuestion.correctAnswer 
+                      ? 'rgba(16,185,129,0.2)' 
+                      : 'rgba(239,68,68,0.2)'
+                    }
+                  ]}>
+                    {selectedOption === currentQuestion.correctAnswer ? (
+                      <>
+                        <CheckCircle2 size={28} color="#10b981" />
+                        <View style={styles.feedbackContent}>
+                          <Text style={styles.feedbackTitle}>Good Job! 🎉</Text>
+                          <Text style={styles.feedbackText}>{currentQuestion.explanation}</Text>
+                        </View>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle size={28} color="#ef4444" />
+                        <View style={styles.feedbackContent}>
+                          <Text style={styles.feedbackTitle}>Not Quite Right</Text>
+                          <Text style={styles.feedbackText}>
+                            The correct answer is: {currentQuestion.options[currentQuestion.correctAnswer]}
+                          </Text>
+                          <Text style={styles.feedbackExplanation}>{currentQuestion.explanation}</Text>
+                        </View>
+                      </>
+                    )}
+                  </View>
+                )}
+
+                {hasAnswered && (
+                  <TouchableOpacity
+                    style={[styles.nextButton, { backgroundColor: selectedCategoryData?.color }]}
+                    onPress={handleNextQuestion}
+                  >
+                    <LinearGradient
+                      colors={[selectedCategoryData?.color || '#06bfdb', '#0891b2']}
+                      style={styles.nextButtonGradient}
+                    >
+                      <Text style={styles.nextButtonText}>
+                        {currentQuestionIndex < currentQuestions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
+              </LinearGradient>
             </View>
           </View>
         )}
-
       </Animated.ScrollView>
 
-      {/* Completion Modal */}
       <Modal
         visible={showCompletionModal}
         transparent={true}
         animationType="fade"
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <LinearGradient
+            colors={['rgba(6,191,219,0.2)', 'rgba(34,211,238,0.1)']}
+            style={styles.modalContent}
+          >
             <Trophy size={64} color="#f59e0b" />
             <Text style={styles.modalTitle}>Quiz Complete! 🎊</Text>
             <Text style={styles.modalScore}>
@@ -602,11 +390,16 @@ const QuizPage: React.FC = () => {
                 style={styles.modalButton}
                 onPress={handleRestartQuiz}
               >
-                <RefreshCcw size={20} color="white" />
-                <Text style={styles.modalButtonText}>Try Again</Text>
+                <LinearGradient
+                  colors={['#06bfdb', '#0891b2']}
+                  style={styles.modalButtonGradient}
+                >
+                  <RefreshCcw size={20} color="white" />
+                  <Text style={styles.modalButtonText}>Try Again</Text>
+                </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonSecondary]}
+                style={styles.modalButtonSecondary}
                 onPress={() => {
                   setShowCompletionModal(false);
                   setSelectedCategory(null);
@@ -615,7 +408,7 @@ const QuizPage: React.FC = () => {
                 <Text style={styles.modalButtonTextSecondary}>Choose Another Category</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </LinearGradient>
         </View>
       </Modal>
     </View>
@@ -625,21 +418,19 @@ const QuizPage: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#0a1929',
   },
-  headerContainer: {
+  gradient: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    paddingTop: StatusBar.currentHeight || 0,
+    width: '100%',
+    height: '100%',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 120,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   backButton: {
     flexDirection: 'row',
@@ -649,32 +440,50 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 16,
-    color: '#1f2937',
+    color: '#fff',
     marginLeft: 8,
     fontWeight: '500',
   },
   heroContainer: {
-    backgroundColor: '#ffffff',
     margin: 16,
     padding: 32,
     borderRadius: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(6,191,219,0.3)',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  heroGlow: {
+    position: 'absolute',
+    top: -100,
+    right: -100,
+    width: 256,
+    height: 256,
+    borderRadius: 128,
+    backgroundColor: 'rgba(6,191,219,0.1)',
+  },
+  heroIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(6,191,219,0.2)',
+    borderWidth: 2,
+    borderColor: '#06bfdb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginTop: 16,
     textAlign: 'center',
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.7)',
     marginTop: 8,
     textAlign: 'center',
   },
@@ -684,20 +493,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 16,
   },
   categoryCard: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
     borderRadius: 20,
-    padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  categoryGradient: {
+    flexDirection: 'row',
+    padding: 20,
   },
   categoryIcon: {
     width: 64,
@@ -706,6 +514,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    borderWidth: 1,
   },
   categoryContent: {
     flex: 1,
@@ -714,17 +523,17 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 4,
   },
   categoryDescription: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.7)',
     marginBottom: 8,
   },
   questionCount: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: 'rgba(255,255,255,0.5)',
     fontWeight: '600',
   },
   quizContainer: {
@@ -735,31 +544,29 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#3b82f6',
     borderRadius: 4,
   },
   progressText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.7)',
     marginTop: 8,
     textAlign: 'center',
     fontWeight: '500',
   },
   questionCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 8,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  questionGradient: {
+    padding: 0,
   },
   questionHeader: {
     padding: 16,
@@ -767,12 +574,12 @@ const styles = StyleSheet.create({
   questionNumber: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1f2937',
+    color: '#fff',
   },
   questionText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: '#fff',
     padding: 20,
     paddingTop: 12,
     lineHeight: 26,
@@ -785,40 +592,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   optionSelected: {
-    borderColor: '#3b82f6',
-    backgroundColor: '#eff6ff',
+    borderColor: '#06bfdb',
+    backgroundColor: 'rgba(6,191,219,0.1)',
   },
   optionCorrect: {
     borderColor: '#10b981',
-    backgroundColor: '#d1fae5',
+    backgroundColor: 'rgba(16,185,129,0.1)',
   },
   optionWrong: {
     borderColor: '#ef4444',
-    backgroundColor: '#fee2e2',
+    backgroundColor: 'rgba(239,68,68,0.1)',
   },
   optionText: {
     fontSize: 16,
-    color: '#374151',
+    color: 'rgba(255,255,255,0.7)',
     flex: 1,
   },
-  optionTextSelected: {
-    color: '#1f2937',
-    fontWeight: '600',
-  },
-  optionTextCorrect: {
-    color: '#065f46',
-    fontWeight: '600',
-  },
-  optionTextWrong: {
-    color: '#991b1b',
+  optionTextActive: {
+    color: '#fff',
     fontWeight: '600',
   },
   feedbackContainer: {
@@ -827,12 +626,8 @@ const styles = StyleSheet.create({
     marginTop: 0,
     padding: 16,
     borderRadius: 12,
-  },
-  feedbackCorrect: {
-    backgroundColor: '#d1fae5',
-  },
-  feedbackWrong: {
-    backgroundColor: '#fee2e2',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   feedbackContent: {
     flex: 1,
@@ -841,26 +636,29 @@ const styles = StyleSheet.create({
   feedbackTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 4,
   },
   feedbackText: {
     fontSize: 14,
-    color: '#374151',
+    color: 'rgba(255,255,255,0.8)',
     lineHeight: 20,
     marginBottom: 4,
   },
   feedbackExplanation: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
     lineHeight: 20,
     marginTop: 8,
   },
   nextButton: {
     margin: 20,
     marginTop: 0,
-    padding: 16,
     borderRadius: 12,
+    overflow: 'hidden',
+  },
+  nextButtonGradient: {
+    padding: 16,
     alignItems: 'center',
   },
   nextButtonText: {
@@ -870,39 +668,35 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: 'white',
     borderRadius: 24,
     padding: 32,
     width: width * 0.85,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 32,
-    elevation: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(6,191,219,0.3)',
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginTop: 16,
     textAlign: 'center',
   },
   modalScore: {
     fontSize: 18,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.7)',
     marginTop: 12,
     textAlign: 'center',
   },
   modalPercentage: {
     fontSize: 48,
     fontWeight: '700',
-    color: '#3b82f6',
+    color: '#06bfdb',
     marginTop: 8,
   },
   modalButtons: {
@@ -910,16 +704,15 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   modalButton: {
-    flexDirection: 'row',
-    backgroundColor: '#3b82f6',
-    padding: 16,
     borderRadius: 12,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+  modalButtonGradient: {
+    flexDirection: 'row',
+    padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
-  },
-  modalButtonSecondary: {
-    backgroundColor: '#f3f4f6',
   },
   modalButtonText: {
     color: 'white',
@@ -927,8 +720,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
+  modalButtonSecondary: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
   modalButtonTextSecondary: {
-    color: '#1f2937',
+    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
