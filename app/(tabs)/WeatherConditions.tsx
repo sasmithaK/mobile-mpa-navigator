@@ -15,7 +15,7 @@ import { Feather } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const WeatherSeaConditions = () => {
+const WeatherConditions = () => {
   const [selectedArea, setSelectedArea] = useState('Indian Ocean - Sri Lanka');
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -682,4 +682,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WeatherSeaConditions;
+export default WeatherConditions;

@@ -28,6 +28,7 @@ import {
   Globe
 } from 'lucide-react-native';
 import { Video } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,7 +46,6 @@ interface TopicDetailProps {
       };
     };
   };
-  // For navigation if you're using React Navigation
   navigation?: any;
 }
 
@@ -58,7 +58,7 @@ const TopicDetail: React.FC<TopicDetailProps> = ({ route, navigation }) => {
     id: 1,
     title: 'Marine Protected Areas',
     subtitle: 'Understanding conservation zones',
-    color: '#10b981',
+    color: '#06bfdb',
     description: 'Learn about different types of MPAs, their boundaries, and protection levels.',
     readTime: '5 min read'
   };
@@ -328,6 +328,11 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#0a1929', '#1a365d', '#0f172a']}
+        style={styles.gradient}
+      />
+
       <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
       </Animated.View>
 
@@ -343,18 +348,23 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
       >
         {/* Back Button */}
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <ArrowLeft size={24} color="#1f2937" />
+          <ArrowLeft size={24} color="#fff" />
           <Text style={styles.backText}>Back to Hub</Text>
         </TouchableOpacity>
 
         {/* Hero Section with Video */}
         <View style={styles.heroContainer}>
-          <View style={[styles.heroGradient, { backgroundColor: topic.color }]} />
+          <LinearGradient
+            colors={['rgba(6, 191, 219, 0.2)', 'rgba(6, 191, 219, 0.05)']}
+            style={styles.heroGradient}
+          />
           
           {/* Video Container */}
           <View style={styles.videoContainer}>
             <TouchableOpacity style={styles.videoOverlay} onPress={handleVideoPress}>
-              <Play size={48} color="white" />
+              <View style={styles.playButtonContainer}>
+                <Play size={48} color="#06bfdb" fill="#06bfdb" />
+              </View>
             </TouchableOpacity>
 
             {/* <Video
@@ -365,14 +375,16 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
               shouldPlay
             /> */}
             
-            <View style={styles.videoOverlay} />
+            <View style={styles.videoPlaceholder}>
+              <Text style={styles.videoPlaceholderText}>Video Preview</Text>
+            </View>
           </View>
 
           {/* Hero Content */}
           <View style={styles.heroContent}>
             <View style={styles.topicHeader}>
-              <View style={[styles.topicIconContainer, { backgroundColor: topic.color + '20' }]}>
-                <IconComponent size={32} color={topic.color} />
+              <View style={[styles.topicIconContainer, { backgroundColor: 'rgba(6, 191, 219, 0.15)' }]}>
+                <IconComponent size={32} color="#06bfdb" />
               </View>
               <View style={styles.topicTitleContainer}>
                 <Text style={styles.heroTitle}>{topic.title}</Text>
@@ -383,15 +395,15 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
             {/* Topic Stats */}
             <View style={styles.topicStats}>
               <View style={styles.statItem}>
-                <Clock size={16} color="#6b7280" />
+                <Clock size={16} color="#93c5fd" />
                 <Text style={styles.statText}>{topic.readTime}</Text>
               </View>
               <View style={styles.statItem}>
-                <Eye size={16} color="#6b7280" />
+                <Eye size={16} color="#93c5fd" />
                 <Text style={styles.statText}>2.3k views</Text>
               </View>
               <TouchableOpacity style={styles.shareButton}>
-                <Share size={16} color="#6b7280" />
+                <Share size={16} color="#93c5fd" />
                 <Text style={styles.statText}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -401,7 +413,7 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
         {/* Topic Section */}
         <View style={styles.topicSection}>
           <View style={styles.sectionHeader}>
-            <BookOpen size={24} color="#1f2937" />
+            <BookOpen size={24} color="#22d3ee" />
             <Text style={styles.sectionTitle}>Topic Overview</Text>
           </View>
           <Text style={styles.topicOverview}>
@@ -422,26 +434,36 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
         {/* Video Link Section */}
         <View style={styles.videoLinkSection}>
           <TouchableOpacity style={styles.videoLinkCard} onPress={handleMoreInfoVideo}>
-            <View style={styles.videoLinkContent}>
-              <View style={styles.videoLinkIcon}>
-                <ExternalLink size={24} color="#3b82f6" />
+            <LinearGradient
+              colors={['rgba(6, 191, 219, 0.1)', 'rgba(6, 191, 219, 0.05)']}
+              style={styles.videoLinkGradient}
+            >
+              <View style={styles.videoLinkContent}>
+                <View style={styles.videoLinkIcon}>
+                  <ExternalLink size={24} color="#06bfdb" />
+                </View>
+                <View style={styles.videoLinkText}>
+                  <Text style={styles.videoLinkTitle}>Watch Detailed Documentary</Text>
+                  <Text style={styles.videoLinkSubtitle}>
+                    Explore more insights with expert interviews and real-world examples
+                  </Text>
+                </View>
+                <ChevronRight size={20} color="#93c5fd" />
               </View>
-              <View style={styles.videoLinkText}>
-                <Text style={styles.videoLinkTitle}>Watch Detailed Documentary</Text>
-                <Text style={styles.videoLinkSubtitle}>
-                  Explore more insights with expert interviews and real-world examples
-                </Text>
-              </View>
-              <ChevronRight size={20} color="#9ca3af" />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </Animated.ScrollView>
 
       {/* Take Action Button - Bottom Right */}
       <TouchableOpacity style={styles.takeActionButton} onPress={handleTakeAction}>
-        <AlertCircle size={20} color="white" />
-        <Text style={styles.takeActionText}>Take Action</Text>
+        <LinearGradient
+          colors={['#ef4444', '#dc2626']}
+          style={styles.actionButtonGradient}
+        >
+          <AlertCircle size={20} color="white" />
+          <Text style={styles.takeActionText}>Take Action</Text>
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -450,7 +472,12 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#0a1929',
+  },
+  gradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   headerContainer: {
     position: 'absolute',
@@ -464,53 +491,62 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 120,
-    paddingBottom: 100, // Space for take action button
+    paddingTop: 60,
+    paddingBottom: 100,
   },
 
   // Back Button
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    margin: 16,
-    marginBottom: 8,
+    marginHorizontal: 24,
+    marginBottom: 16,
+    marginTop: 16,
   },
   backText: {
     fontSize: 16,
-    color: '#1f2937',
+    color: '#fff',
     marginLeft: 8,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 
   // Hero Section
   heroContainer: {
-    backgroundColor: '#ffffff',
-    margin: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    marginHorizontal: 24,
     borderRadius: 24,
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   heroGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 6,
+    height: 200,
   },
   videoContainer: {
     position: 'relative',
     height: 200,
-    backgroundColor: '#000',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   videoPlayer: {
     width: '100%',
     height: '100%',
-    borderRadius: 16,
+  },
+  videoPlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoPlaceholderText: {
+    color: 'rgba(255,255,255,0.3)',
+    fontSize: 16,
+    fontWeight: '600',
   },
   videoOverlay: {
     position: 'absolute',
@@ -518,16 +554,20 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
   },
-  videoText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 8,
+  playButtonContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderWidth: 2,
+    borderColor: '#06bfdb',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroContent: {
     padding: 24,
@@ -544,19 +584,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
   },
   topicTitleContainer: {
     flex: 1,
   },
   heroTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
+    fontWeight: '800',
+    color: '#fff',
     marginBottom: 4,
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    color: '#93c5fd',
+    fontWeight: '500',
   },
   topicStats: {
     flexDirection: 'row',
@@ -568,8 +611,9 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#93c5fd',
     marginLeft: 6,
+    fontWeight: '600',
   },
   shareButton: {
     flexDirection: 'row',
@@ -578,16 +622,13 @@ const styles = StyleSheet.create({
 
   // Topic Section
   topicSection: {
-    backgroundColor: '#ffffff',
-    margin: 16,
-    marginTop: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    marginHorizontal: 24,
+    marginTop: 16,
     padding: 20,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -597,82 +638,85 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginLeft: 8,
+    letterSpacing: 0.5,
   },
   topicOverview: {
     fontSize: 16,
-    color: '#4b5563',
+    color: '#93c5fd',
     lineHeight: 24,
+    fontWeight: '500',
   },
 
   // Detailed Section
   detailedSection: {
-    backgroundColor: '#ffffff',
-    margin: 16,
-    marginTop: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    marginHorizontal: 24,
+    marginTop: 16,
     padding: 20,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   detailedTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 16,
+    letterSpacing: 0.5,
   },
   detailedContent: {
     fontSize: 15,
-    color: '#374151',
+    color: 'rgba(255, 255, 255, 0.8)',
     lineHeight: 24,
     textAlign: 'justify',
+    fontWeight: '500',
   },
 
   // Video Link Section
   videoLinkSection: {
-    margin: 16,
-    marginTop: 8,
+    marginHorizontal: 24,
+    marginTop: 16,
   },
   videoLinkCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
+  },
+  videoLinkGradient: {
+    padding: 20,
   },
   videoLinkContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
   },
   videoLinkIcon: {
     width: 48,
     height: 48,
-    backgroundColor: '#3b82f620',
+    backgroundColor: 'rgba(6, 191, 219, 0.2)',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
   },
   videoLinkText: {
     flex: 1,
   },
   videoLinkTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
+    fontWeight: '700',
+    color: '#fff',
     marginBottom: 4,
   },
   videoLinkSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#93c5fd',
     lineHeight: 20,
+    fontWeight: '500',
   },
 
   // Take Action Button
@@ -680,22 +724,24 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 30,
     right: 20,
-    backgroundColor: '#ef4444',
+    borderRadius: 25,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  actionButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   takeActionText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     marginLeft: 8,
   },
 });

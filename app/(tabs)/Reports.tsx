@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  TextInput,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   MapPin,
   Navigation2,
@@ -20,10 +22,6 @@ import {
   Save,
   X,
 } from 'lucide-react-native';
-import FormInput from '../../components/FormInput';
-import FormTextArea from '../../components/FormTextArea';
-import FormButton from '../../components/FormButton';
-import FormPicker from '../../components/FormPicker';
 
 const Reports = () => {
   const [reportType, setReportType] = useState<'hotspot' | 'pollution'>('hotspot');
@@ -35,49 +33,28 @@ const Reports = () => {
   const [longitude, setLongitude] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Form validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
-    if (!title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-
-    if (reportType === 'hotspot' && !species.trim()) {
-      newErrors.species = 'Species is required for wildlife hotspot';
-    }
-
-    if (!description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-
-    if (!latitude || !longitude) {
-      newErrors.location = 'Please select a location';
-    }
+    if (!title.trim()) newErrors.title = 'Title is required';
+    if (reportType === 'hotspot' && !species.trim()) newErrors.species = 'Species is required';
+    if (!description.trim()) newErrors.description = 'Description is required';
+    if (!latitude || !longitude) newErrors.location = 'Please select a location';
 
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
-
-    if (isNaN(lat) || lat < -90 || lat > 90) {
-      newErrors.latitude = 'Invalid latitude';
-    }
-
-    if (isNaN(lng) || lng < -180 || lng > 180) {
-      newErrors.longitude = 'Invalid longitude';
-    }
+    if (isNaN(lat) || lat < -90 || lat > 90) newErrors.latitude = 'Invalid latitude';
+    if (isNaN(lng) || lng < -180 || lng > 180) newErrors.longitude = 'Invalid longitude';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleGetCurrentLocation = () => {
-    // Mock location for demo - in real app, use expo-location
     setLatitude('1.3521');
     setLongitude('103.8198');
-    Alert.alert('Location Updated', 'Using Singapore as demo location');
+    Alert.alert('Location Updated', 'Using current location');
   };
 
   const handleSubmit = async () => {
@@ -85,273 +62,247 @@ const Reports = () => {
       Alert.alert('Validation Error', 'Please fill in all required fields');
       return;
     }
-
     setLoading(true);
-
-    // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      Alert.alert(
-        'Success',
-        `${reportType === 'hotspot' ? 'Wildlife hotspot' : 'Pollution'} report submitted successfully!`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setTitle('');
-              setSpecies('');
-              setDescription('');
-              setSeverity('medium');
-              setLatitude('');
-              setLongitude('');
-              setImageUrl('');
-              setErrors({});
-            },
-          },
-        ]
-      );
+      Alert.alert('Success', 'Report submitted successfully!', [
+        { text: 'OK', onPress: () => {
+            setTitle(''); setSpecies(''); setDescription('');
+            setSeverity('medium'); setLatitude(''); setLongitude('');
+            setImageUrl(''); setErrors({});
+          }
+        },
+      ]);
     }, 1500);
   };
 
   const handleReset = () => {
-    Alert.alert('Reset Form', 'Are you sure you want to clear all fields?', [
+    Alert.alert('Reset Form', 'Clear all fields?', [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Reset',
-        style: 'destructive',
-        onPress: () => {
-          setTitle('');
-          setSpecies('');
-          setDescription('');
-          setSeverity('medium');
-          setLatitude('');
-          setLongitude('');
-          setImageUrl('');
-          setErrors({});
-        },
+      { text: 'Reset', style: 'destructive', onPress: () => {
+          setTitle(''); setSpecies(''); setDescription('');
+          setSeverity('medium'); setLatitude(''); setLongitude('');
+          setImageUrl(''); setErrors({});
+        }
       },
     ]);
   };
 
   const severityOptions = [
-    { label: 'Low - Minor concern', value: 'low' },
-    { label: 'Medium - Moderate attention needed', value: 'medium' },
-    { label: 'High - Significant concern', value: 'high' },
-    { label: 'Critical - Immediate action required', value: 'critical' },
+    { label: 'Low', value: 'low', color: '#10b981' },
+    { label: 'Medium', value: 'medium', color: '#f59e0b' },
+    { label: 'High', value: 'high', color: '#ef4444' },
+    { label: 'Critical', value: 'critical', color: '#dc2626' },
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerIcon}>
-          <MapPin size={32} color="#3b82f6" />
-        </View>
-        <Text style={styles.title}>Submit Marine Report</Text>
-        <Text style={styles.subtitle}>
-          Help protect our oceans by reporting wildlife sightings or pollution incidents
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <LinearGradient colors={['#0a1929', '#1a365d', '#0f172a']} style={styles.gradient} />
 
-      {/* Report Type Selection */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Report Type *</Text>
-        <View style={styles.typeSelector}>
-          <TouchableOpacity
-            style={[
-              styles.typeButton,
-              reportType === 'hotspot' && styles.typeButtonActive,
-            ]}
-            onPress={() => setReportType('hotspot')}
-            activeOpacity={0.7}
-          >
-            <Fish
-              size={32}
-              color={reportType === 'hotspot' ? '#3b82f6' : '#9ca3af'}
-            />
-            <Text
-              style={[
-                styles.typeButtonText,
-                reportType === 'hotspot' && styles.typeButtonTextActive,
-              ]}
-            >
-              Wildlife Hotspot
-            </Text>
-            <Text style={styles.typeButtonSubtext}>Marine animal sightings</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.typeButton,
-              reportType === 'pollution' && styles.typeButtonActive,
-            ]}
-            onPress={() => setReportType('pollution')}
-            activeOpacity={0.7}
-          >
-            <Droplet
-              size={32}
-              color={reportType === 'pollution' ? '#ef4444' : '#9ca3af'}
-            />
-            <Text
-              style={[
-                styles.typeButtonText,
-                reportType === 'pollution' && styles.typeButtonTextActive,
-              ]}
-            >
-              Pollution
-            </Text>
-            <Text style={styles.typeButtonSubtext}>Oil spills, debris, etc.</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Form Fields */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Report Details</Text>
-
-        <FormInput
-          label="Title"
-          placeholder="e.g., Whale pod sighting or Oil spill detected"
-          value={title}
-          onChangeText={setTitle}
-          error={errors.title}
-          icon={<FileText size={20} color="#9ca3af" />}
-          required
-        />
-
-        {reportType === 'hotspot' && (
-          <FormInput
-            label="Species"
-            placeholder="e.g., Humpback Whale, Dolphin, Sea Turtle"
-            value={species}
-            onChangeText={setSpecies}
-            error={errors.species}
-            icon={<Fish size={20} color="#9ca3af" />}
-            required
-          />
-        )}
-
-        <FormTextArea
-          label="Description"
-          placeholder="Provide detailed information about what you observed..."
-          value={description}
-          onChangeText={setDescription}
-          error={errors.description}
-          icon={<FileText size={20} color="#9ca3af" />}
-          required
-        />
-
-        <FormPicker
-          label="Severity Level"
-          value={severity}
-          onValueChange={setSeverity}
-          options={severityOptions}
-          icon={<AlertTriangle size={20} color="#9ca3af" />}
-          required
-        />
-
-        <FormInput
-          label="Image URL (optional)"
-          placeholder="https://example.com/image.jpg"
-          value={imageUrl}
-          onChangeText={setImageUrl}
-          icon={<ImageIcon size={20} color="#9ca3af" />}
-          keyboardType="url"
-        />
-      </View>
-
-      {/* Location Section */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Location *</Text>
-
-        <TouchableOpacity
-          style={styles.locationButton}
-          onPress={handleGetCurrentLocation}
-          activeOpacity={0.7}
-        >
-          <Navigation2 size={20} color="#3b82f6" />
-          <Text style={styles.locationButtonText}>Use Current Location</Text>
-        </TouchableOpacity>
-
-        <View style={styles.coordinatesRow}>
-          <View style={styles.coordinateInput}>
-            <FormInput
-              label="Latitude"
-              placeholder="Click to set"
-              value={latitude}
-              onChangeText={setLatitude}
-              error={errors.latitude}
-              keyboardType="numeric"
-              icon={<MapPin size={20} color="#9ca3af" />}
-            />
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerIcon}>
+            <MapPin size={32} color="#06bfdb" />
           </View>
+          <Text style={styles.title}>Submit Marine Report</Text>
+          <Text style={styles.subtitle}>
+            Help protect our oceans by reporting wildlife sightings or pollution incidents
+          </Text>
+        </View>
 
-          <View style={styles.coordinateInput}>
-            <FormInput
-              label="Longitude"
-              placeholder="Click to set"
-              value={longitude}
-              onChangeText={setLongitude}
-              error={errors.longitude}
-              keyboardType="numeric"
-              icon={<MapPin size={20} color="#9ca3af" />}
-            />
+        {/* Report Type Selection */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Report Type *</Text>
+          <View style={styles.typeSelector}>
+            <TouchableOpacity
+              style={[styles.typeButton, reportType === 'hotspot' && styles.typeButtonActive]}
+              onPress={() => setReportType('hotspot')}
+              activeOpacity={0.7}
+            >
+              <LinearGradient
+                colors={reportType === 'hotspot' ? ['rgba(59,130,246,0.2)', 'rgba(59,130,246,0.1)'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)']}
+                style={styles.typeButtonGradient}
+              >
+                <Fish size={32} color={reportType === 'hotspot' ? '#3b82f6' : 'rgba(255,255,255,0.4)'} />
+                <Text style={[styles.typeButtonText, reportType === 'hotspot' && styles.typeButtonTextActive]}>
+                  Wildlife Hotspot
+                </Text>
+                <Text style={styles.typeButtonSubtext}>Marine animal sightings</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.typeButton, reportType === 'pollution' && styles.typeButtonActive]}
+              onPress={() => setReportType('pollution')}
+              activeOpacity={0.7}
+            >
+              <LinearGradient
+                colors={reportType === 'pollution' ? ['rgba(239,68,68,0.2)', 'rgba(239,68,68,0.1)'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)']}
+                style={styles.typeButtonGradient}
+              >
+                <Droplet size={32} color={reportType === 'pollution' ? '#ef4444' : 'rgba(255,255,255,0.4)'} />
+                <Text style={[styles.typeButtonText, reportType === 'pollution' && styles.typeButtonTextActive]}>
+                  Pollution
+                </Text>
+                <Text style={styles.typeButtonSubtext}>Oil spills, debris, etc.</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {errors.location && (
-          <Text style={styles.errorText}>{errors.location}</Text>
-        )}
+        {/* Form Fields */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Report Details</Text>
+          
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Title *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., Whale pod sighting"
+              placeholderTextColor="rgba(255,255,255,0.4)"
+              value={title}
+              onChangeText={setTitle}
+            />
+            {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+          </View>
 
-        {latitude && longitude && !errors.latitude && !errors.longitude && (
-          <View style={styles.locationPreview}>
-            <MapPin size={20} color="#3b82f6" />
-            <View style={styles.locationPreviewText}>
-              <Text style={styles.locationPreviewTitle}>Location Selected</Text>
-              <Text style={styles.locationPreviewCoords}>
-                Lat: {parseFloat(latitude).toFixed(6)}, Lng:{' '}
-                {parseFloat(longitude).toFixed(6)}
-              </Text>
+          {reportType === 'hotspot' && (
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Species *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g., Humpback Whale"
+                placeholderTextColor="rgba(255,255,255,0.4)"
+                value={species}
+                onChangeText={setSpecies}
+              />
+              {errors.species && <Text style={styles.errorText}>{errors.species}</Text>}
+            </View>
+          )}
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Description *</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Provide detailed information..."
+              placeholderTextColor="rgba(255,255,255,0.4)"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={4}
+            />
+            {errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Severity Level *</Text>
+            <View style={styles.severityButtons}>
+              {severityOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.severityButton,
+                    severity === option.value && { borderColor: option.color, backgroundColor: option.color + '20' }
+                  ]}
+                  onPress={() => setSeverity(option.value)}
+                >
+                  <Text style={[styles.severityText, severity === option.value && { color: option.color }]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
-        )}
-      </View>
+        </View>
 
-      {/* Action Buttons */}
-      <View style={styles.buttonContainer}>
-        <View style={styles.buttonWrapper}>
-          <FormButton
-            title={loading ? 'Submitting...' : 'Submit Report'}
+        {/* Location Section */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Location *</Text>
+
+          <TouchableOpacity style={styles.locationButton} onPress={handleGetCurrentLocation}>
+            <Navigation2 size={20} color="#06bfdb" />
+            <Text style={styles.locationButtonText}>Use Current Location</Text>
+          </TouchableOpacity>
+
+          <View style={styles.coordinatesRow}>
+            <View style={styles.coordinateInput}>
+              <Text style={styles.inputLabel}>Latitude</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0.0000"
+                placeholderTextColor="rgba(255,255,255,0.4)"
+                value={latitude}
+                onChangeText={setLatitude}
+                keyboardType="numeric"
+              />
+            </View>
+
+            <View style={styles.coordinateInput}>
+              <Text style={styles.inputLabel}>Longitude</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0.0000"
+                placeholderTextColor="rgba(255,255,255,0.4)"
+                value={longitude}
+                onChangeText={setLongitude}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+
+          {errors.location && <Text style={styles.errorText}>{errors.location}</Text>}
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.primaryButton]}
             onPress={handleSubmit}
-            variant="primary"
-            size="lg"
-            loading={loading}
-            icon={<Save size={20} color="white" />}
-          />
+            disabled={loading}
+          >
+            <LinearGradient
+              colors={['#06bfdb', '#0891b2']}
+              style={styles.buttonGradient}
+            >
+              <Save size={20} color="white" />
+              <Text style={styles.buttonText}>{loading ? 'Submitting...' : 'Submit Report'}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={handleReset}>
+            <LinearGradient
+              colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']}
+              style={styles.buttonGradient}
+            >
+              <X size={20} color="white" />
+              <Text style={styles.buttonText}>Reset</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.buttonWrapper}>
-          <FormButton
-            title="Reset"
-            onPress={handleReset}
-            variant="secondary"
-            size="lg"
-            icon={<X size={20} color="white" />}
-          />
-        </View>
-      </View>
-    </ScrollView>
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#0a1929',
+  },
+  gradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     padding: 16,
+    paddingTop: 60,
     paddingBottom: 32,
   },
   header: {
@@ -363,7 +314,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#dbeafe',
+    backgroundColor: 'rgba(6,191,219,0.2)',
+    borderWidth: 2,
+    borderColor: '#06bfdb',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -371,31 +324,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
     textAlign: 'center',
     paddingHorizontal: 20,
   },
   card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: '#fff',
     marginBottom: 16,
   },
   typeSelector: {
@@ -404,47 +354,94 @@ const styles = StyleSheet.create({
   },
   typeButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
+    overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#e5e7eb',
-    backgroundColor: 'white',
-    alignItems: 'center',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   typeButtonActive: {
-    borderColor: '#3b82f6',
-    backgroundColor: '#eff6ff',
+    borderColor: 'rgba(6,191,219,0.5)',
+  },
+  typeButtonGradient: {
+    padding: 16,
+    alignItems: 'center',
   },
   typeButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.6)',
     marginTop: 8,
     textAlign: 'center',
   },
   typeButtonTextActive: {
-    color: '#1f2937',
+    color: '#fff',
   },
   typeButtonSubtext: {
     fontSize: 11,
-    color: '#9ca3af',
+    color: 'rgba(255,255,255,0.4)',
     marginTop: 4,
     textAlign: 'center',
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12,
+    padding: 16,
+    color: '#fff',
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#ef4444',
+    marginTop: 4,
+  },
+  severityButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  severityButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+  },
+  severityText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.6)',
   },
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#eff6ff',
+    backgroundColor: 'rgba(6,191,219,0.15)',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: '#06bfdb',
     marginBottom: 16,
     gap: 8,
   },
   locationButtonText: {
-    color: '#3b82f6',
+    color: '#06bfdb',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -455,42 +452,32 @@ const styles = StyleSheet.create({
   coordinateInput: {
     flex: 1,
   },
-  locationPreview: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#eff6ff',
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#3b82f6',
-    marginTop: 8,
-    gap: 8,
-  },
-  locationPreviewText: {
-    flex: 1,
-  },
-  locationPreviewTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e40af',
-    marginBottom: 4,
-  },
-  locationPreviewCoords: {
-    fontSize: 12,
-    color: '#3b82f6',
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#ef4444',
-    marginTop: 4,
-  },
   buttonContainer: {
     gap: 12,
   },
-  buttonWrapper: {
-    width: '100%',
+  button: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+  },
+  primaryButton: {
+    borderColor: 'rgba(6,191,219,0.3)',
+  },
+  secondaryButton: {
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  buttonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
 
 export default Reports;
-
