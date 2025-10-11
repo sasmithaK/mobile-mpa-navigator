@@ -12,22 +12,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-// Define RootStackParamList locally if not importing from App.tsx
-type RootStackParamList = {
-  Onboarding: undefined;
-  Home: undefined;
-  ShipMap: undefined;
-};
+import { useRouter } from 'expo-router'; // Changed from useNavigation
 
 const { width } = Dimensions.get('window');
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-
 const Home: React.FC = () => {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const router = useRouter(); // Changed from navigation
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('home');
 
@@ -36,10 +26,10 @@ const Home: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Fix the navigation handler
+  // Updated navigation handler for Expo Router
   const handleMapNavigation = () => {
     console.log('Navigating to ShipMap...');
-    navigation.navigate('ShipMap');
+    router.push('/(tabs)/ShipMap'); // Use router.push with file path
   };
 
   const stats = [
@@ -90,7 +80,7 @@ const Home: React.FC = () => {
 
   const handleNavigation = (tabId: string) => {
     if (tabId === 'map') {
-      handleMapNavigation(); // Use the fixed navigation function
+      handleMapNavigation();
     } else {
       setActiveTab(tabId);
     }
@@ -162,7 +152,7 @@ const Home: React.FC = () => {
           ))}
         </View>
 
-        {/* Map Navigation Card with Preview - Fixed clickable area */}
+        {/* Map Navigation Card with Preview */}
         <View style={styles.mapNavSection}>
           <Text style={styles.sectionTitle}>
             <Feather name="navigation" size={20} color="#06bfdb" /> Navigate
