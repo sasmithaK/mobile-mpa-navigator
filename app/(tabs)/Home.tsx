@@ -12,10 +12,22 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// Define RootStackParamList locally if not importing from App.tsx
+type RootStackParamList = {
+  Onboarding: undefined;
+  Home: undefined;
+  ShipMap: undefined;
+};
 
 const { width } = Dimensions.get('window');
 
-export default function MarineNavHome() {
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+
+const Home: React.FC = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('home');
 
@@ -23,6 +35,12 @@ export default function MarineNavHome() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Fix the navigation handler
+  const handleMapNavigation = () => {
+    console.log('Navigating to ShipMap...');
+    navigation.navigate('ShipMap');
+  };
 
   const stats = [
     { label: 'Miles Sailed', value: '1,247', icon: 'navigation' },
@@ -69,6 +87,14 @@ export default function MarineNavHome() {
     { id: 'education', icon: 'book-open', label: 'Learn' },
     { id: 'profile', icon: 'user', label: 'Profile' },
   ];
+
+  const handleNavigation = (tabId: string) => {
+    if (tabId === 'map') {
+      handleMapNavigation(); // Use the fixed navigation function
+    } else {
+      setActiveTab(tabId);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -136,14 +162,15 @@ export default function MarineNavHome() {
           ))}
         </View>
 
-        {/* Map Navigation Card with Preview */}
+        {/* Map Navigation Card with Preview - Fixed clickable area */}
         <View style={styles.mapNavSection}>
           <Text style={styles.sectionTitle}>
             <Feather name="navigation" size={20} color="#06bfdb" /> Navigate
           </Text>
           <TouchableOpacity 
             style={styles.mapCard}
-            activeOpacity={0.9}
+            activeOpacity={0.7}
+            onPress={handleMapNavigation}
           >
             <Image
               source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80' }}
@@ -264,7 +291,7 @@ export default function MarineNavHome() {
             <TouchableOpacity
               key={item.id}
               style={styles.navItem}
-              onPress={() => setActiveTab(item.id)}
+              onPress={() => handleNavigation(item.id)}
               activeOpacity={0.7}
             >
               <View style={[
@@ -290,7 +317,7 @@ export default function MarineNavHome() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -736,3 +763,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#06bfdb',
   },
 });
+
+export default Home;

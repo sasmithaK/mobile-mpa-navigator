@@ -11,10 +11,11 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
-const OnboardingScreen = () => {
+const OnboardingScreen: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -29,7 +30,7 @@ const OnboardingScreen = () => {
         'Track vessels, monitor routes, and explore the seas with precision and confidence.',
       image:
         'https://images.unsplash.com/photo-1541963058-d39ff9095832?w=800&q=80',
-      icon: 'anchor',
+      icon: 'anchor' as const,
       accentColor: '#06bfdb',
       gradientColors: ['#0a1929', '#1a365d', '#065f9d', '#000000'],
     },
@@ -41,7 +42,7 @@ const OnboardingScreen = () => {
         'Access real-time AIS data and comprehensive vessel information from anywhere in the world.',
       image:
         'https://images.unsplash.com/photo-1578271887552-5ac3a72752bc?w=800&q=80',
-      icon: 'navigation',
+      icon: 'navigation' as const,
       accentColor: '#22d3ee',
       gradientColors: ['#0f2027', '#203a43', '#2c5364', '#000000'],
     },
@@ -53,7 +54,7 @@ const OnboardingScreen = () => {
         'Discover and respect protected marine environments with interactive conservation maps.',
       image:
         'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
-      icon: 'shield',
+      icon: 'shield' as const,
       accentColor: '#10b981',
       gradientColors: ['#134e4a', '#065f46', '#047857', '#000000'],
     },
@@ -65,7 +66,7 @@ const OnboardingScreen = () => {
         'Explore marine biodiversity, share discoveries, and expand your maritime knowledge.',
       image:
         'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&q=80',
-      icon: 'compass',
+      icon: 'compass' as const,
       accentColor: '#3b82f6',
       gradientColors: ['#1e3a8a', '#1e40af', '#2563eb', '#000000'],
     },
@@ -118,12 +119,26 @@ const OnboardingScreen = () => {
   };
 
   const handleGetStarted = () => {
-    console.log('Navigate to app');
+    router.push('/(tabs)/Home');
   };
 
   const current = onboardingData[currentPage];
   const currentIcon = current.icon;
-  const currentGradient = [...current.gradientColors];
+
+  const renderIcon = () => {
+    switch (currentIcon) {
+      case 'anchor':
+        return <Feather name="anchor" size={40} color="#000" />;
+      case 'navigation':
+        return <Feather name="navigation" size={40} color="#000" />;
+      case 'shield':
+        return <Feather name="shield" size={40} color="#000" />;
+      case 'compass':
+        return <Feather name="compass" size={40} color="#000" />;
+      default:
+        return <Feather name="anchor" size={40} color="#000" />;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -195,10 +210,7 @@ const OnboardingScreen = () => {
           <View style={[styles.iconGlow, { backgroundColor: current.accentColor }]} />
           <View style={[styles.iconRing, { borderColor: current.accentColor }]}>
             <View style={[styles.iconInner, { backgroundColor: current.accentColor }]}>
-              {currentIcon === 'anchor' && <Feather name="anchor" size={40} color="#000" />}
-              {currentIcon === 'navigation' && <Feather name="navigation" size={40} color="#000" />}
-              {currentIcon === 'shield' && <Feather name="shield" size={40} color="#000" />}
-              {currentIcon === 'compass' && <Feather name="compass" size={40} color="#000" />}
+              {renderIcon()}
             </View>
           </View>
         </View>

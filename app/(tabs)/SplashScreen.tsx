@@ -9,12 +9,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
 const SplashScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -63,14 +63,13 @@ const SplashScreen = () => {
       ])
     ).start();
 
-    // Navigate to onboarding after 3 seconds
+    // Navigate to onboarding after 2 seconds
     const timer = setTimeout(() => {
-      // navigation.navigate('Onboarding');
-      console.log('Navigate to Onboarding');
-    }, 3000);
+      router.push('/Onboarding');
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [router, scaleAnim, fadeAnim, rotateAnim, pulseAnim]);
 
   const rotate = rotateAnim.interpolate({
     inputRange: [0, 1],
@@ -83,7 +82,6 @@ const SplashScreen = () => {
     { name: 'shield', color: '#10b981', angle: 180 },
     { name: 'compass', color: '#3b82f6', angle: 270 },
   ];
-  
 
   return (
     <View style={styles.container}>
@@ -190,18 +188,7 @@ const SplashScreen = () => {
                       { borderColor: icon.color },
                     ]}
                   >
-                    {icon.name === 'anchor' && (
-                      <Feather name="anchor" size={20} color={icon.color} />
-                    )}
-                    {icon.name === 'navigation' && (
-                      <Feather name="navigation" size={20} color={icon.color} />
-                    )}
-                    {icon.name === 'shield' && (
-                      <Feather name="shield" size={20} color={icon.color} />
-                    )}
-                    {icon.name === 'compass' && (
-                      <Feather name="compass" size={20} color={icon.color} />
-                    )}
+                    <Feather name={icon.name as any} size={20} color={icon.color} />
                   </View>
                 </Animated.View>
               );
@@ -237,7 +224,7 @@ const SplashScreen = () => {
           }}
         >
           <Text style={styles.appName}>Eco Nav</Text>
-          <Text style={styles.tagline}>protecting our oceans, one voyage at a time</Text>
+          <Text style={styles.tagline}>protecting our oceans, one voyage at a time</Text>
         </Animated.View>
 
         {/* Loading Indicator */}
