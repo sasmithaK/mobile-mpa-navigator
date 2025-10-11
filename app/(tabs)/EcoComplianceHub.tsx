@@ -29,8 +29,6 @@ import {
   FileText,
   Clock
 } from 'lucide-react-native';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
@@ -144,7 +142,7 @@ const EcoComplianceHub: React.FC = () => {
 
   const navigation = useNavigation();
   const handleTopicPress = (topic: EducationalTopic): void => {
-  navigation.navigate('TopicDetail', { topic });
+  // navigation.navigate('TopicDetail', { topic });
   
 };
 
@@ -162,7 +160,7 @@ const EcoComplianceHub: React.FC = () => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
-        <Header activeSection={activeSection} setActiveSection={setActiveSection} />
+      
       </Animated.View>
 
       <Animated.ScrollView
@@ -328,9 +326,6 @@ const EcoComplianceHub: React.FC = () => {
             </TouchableOpacity>
           </View>
         </View>
-
-       
-        <Footer />
       </Animated.ScrollView>
     </View>
   );

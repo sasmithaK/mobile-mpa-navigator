@@ -27,11 +27,7 @@ import {
   FileText,
   Globe
 } from 'lucide-react-native';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 import { Video } from 'expo-av';
-
-
 
 const { width, height } = Dimensions.get('window');
 
@@ -333,7 +329,6 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
-        <Header activeSection={activeSection} setActiveSection={setActiveSection} />
       </Animated.View>
 
       <Animated.ScrollView
@@ -359,19 +354,18 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
           {/* Video Container */}
           <View style={styles.videoContainer}>
             <TouchableOpacity style={styles.videoOverlay} onPress={handleVideoPress}>
-              {/*<Play size={48} color="white" />*/}
+              <Play size={48} color="white" />
             </TouchableOpacity>
 
-            <Video
-    source={require('../../assets/videos/videofish.mp4')} 
-    style={styles.videoPlayer}
-    isLooping
-    isMuted
-    shouldPlay
-  />
-
-  <View style={styles.videoOverlay} />
+            {/* <Video
+              source={require('../../assets/videos/videofish.mp4')}
+              style={styles.videoPlayer}
+              isLooping
+              isMuted
+              shouldPlay
+            /> */}
             
+            <View style={styles.videoOverlay} />
           </View>
 
           {/* Hero Content */}
@@ -442,8 +436,6 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
             </View>
           </TouchableOpacity>
         </View>
-
-        <Footer />
       </Animated.ScrollView>
 
       {/* Take Action Button - Bottom Right */}
@@ -515,9 +507,10 @@ const styles = StyleSheet.create({
     height: 200,
     backgroundColor: '#000',
   },
-  videoThumbnail: {
+  videoPlayer: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
   },
   videoOverlay: {
     position: 'absolute',
@@ -555,13 +548,6 @@ const styles = StyleSheet.create({
   topicTitleContainer: {
     flex: 1,
   },
-  videoPlayer: {
-  width: '100%',
-  height: 200,
-  borderRadius: 16,
-  zIndex: 0,
-},
-
   heroTitle: {
     fontSize: 24,
     fontWeight: '700',

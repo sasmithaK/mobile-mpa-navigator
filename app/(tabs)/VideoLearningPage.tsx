@@ -31,8 +31,6 @@ import {
   AlertTriangle,
   Anchor
 } from 'lucide-react-native';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 import { WebView } from 'react-native-webview';
 
 
@@ -328,7 +326,6 @@ const VideoLearningPage: React.FC = () => {
   return (
     <View style={styles.container}>
       <Animated.View style={styles.headerContainer}>
-        <Header activeSection={activeSection} setActiveSection={setActiveSection} />
       </Animated.View>
 
       <Animated.ScrollView
@@ -457,8 +454,6 @@ const VideoLearningPage: React.FC = () => {
             </ScrollView>
           </View>
         ))}
-
-        <Footer />
       </Animated.ScrollView>
 
       {/* Video Player Modal */}
