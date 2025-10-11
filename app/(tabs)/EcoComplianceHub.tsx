@@ -10,27 +10,20 @@ import {
   StatusBar,
   Image
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { 
   Leaf, 
-  Fish, 
-  Anchor, 
-  AlertTriangle,
   BookOpen,
   Award,
   Users,
-  Globe,
-  Camera,
-  MapPin,
-  Waves,
   Shield,
-  Info,
   ChevronRight,
   PlayCircle,
-  FileText,
+  AlertTriangle,
   Clock
 } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
@@ -52,16 +45,20 @@ interface Stat {
   icon: React.ComponentType<any>;
 }
 
-const EcoComplianceHub: React.FC = () => {
-  const router = useRouter();
-  const [activeSection, setActiveSection] = useState<string>('education');
-  const scrollY = new Animated.Value(0);
+type RootStackParamList = {
+  VideoLearningPage: undefined;
+  QuizPage: undefined;
+  Reports: undefined;
+  TopicDetail: {
+    topic: EducationalTopic;
+  };
+};
 
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [1, 0.9],
-    extrapolate: 'clamp',
-  });
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const EcoComplianceHub: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const scrollY = new Animated.Value(0);
 
   const educationalTopics: EducationalTopic[] = [
     {
@@ -73,78 +70,94 @@ const EcoComplianceHub: React.FC = () => {
       gradient: ['#10b981', '#059669'],
       description: 'Learn about different types of MPAs, their boundaries, and protection levels.',
       readTime: '5 min read',
-      image: 'nav5.jpg' 
+      image: 'https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=400&h=280&fit=crop' 
     },
     {
       id: 2,
       title: 'Marine Wildlife Protection',
       subtitle: 'Protecting ocean biodiversity',
-      icon: Fish,
+      icon: Shield,
       color: '#3b82f6',
       gradient: ['#3b82f6', '#1d4ed8'],
       description: 'Discover endangered species, migration patterns, and conservation efforts.',
       readTime: '7 min read',
-      image: 'nav4.jpg'
+      image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400&h=280&fit=crop'
     },
     {
       id: 3,
       title: 'Sustainable Fishing Practices',
       subtitle: 'Responsible fishing guidelines',
-      icon: Anchor,
+      icon: Shield,
       color: '#f59e0b',
       gradient: ['#f59e0b', '#d97706'],
       description: 'Best practices for sustainable fishing and marine resource management.',
       readTime: '6 min read',
-      image: 'nav3.jpg'
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=280&fit=crop'
     },
     {
       id: 4,
       title: 'Ocean Pollution Prevention',
       subtitle: 'Keeping our oceans clean',
-      icon: Waves,
+      icon: Shield,
       color: '#06b6d4',
       gradient: ['#06b6d4', '#0891b2'],
       description: 'Understanding pollution sources and prevention strategies.',
       readTime: '4 min read',
-      image: 'nav4.jpg'
+      image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=280&fit=crop'
     },
     {
       id: 5,
       title: 'Compliance Regulations',
       subtitle: 'Maritime laws & guidelines',
-      icon: FileText,
+      icon: Shield,
       color: '#8b5cf6',
       gradient: ['#8b5cf6', '#7c3aed'],
       description: 'International and local regulations for marine conservation.',
       readTime: '8 min read',
-      image: 'nav5.jpg'
+      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=280&fit=crop'
     },
     {
       id: 6,
       title: 'Climate Change Impact',
       subtitle: 'Ocean warming & acidification',
-      icon: Globe,
+      icon: Shield,
       color: '#ef4444',
       gradient: ['#ef4444', '#dc2626'],
       description: 'How climate change affects marine ecosystems and biodiversity.',
       readTime: '9 min read',
-      image: 'nav6.jpg'
+      image: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=280&fit=crop'
     },
   ];
 
   const stats: Stat[] = [
     { label: 'Protected Areas', value: '15,000+', icon: Shield },
-    { label: 'Species Protected', value: '8,500+', icon: Fish },
+    { label: 'Species Protected', value: '8,500+', icon: Shield },
     { label: 'Active Users', value: '25,000+', icon: Users },
     { label: 'Educational Resources', value: '200+', icon: BookOpen }
   ];
 
   const handleTopicPress = (topic: EducationalTopic): void => {
-    console.log('Navigate to:', topic.title);
+    navigation.navigate('TopicDetail', { topic });
   };
 
   const handleQuickAction = (action: string): void => {
-    console.log('Quick action:', action);
+    switch(action) {
+      case 'videos':
+        navigation.navigate('VideoLearningPage');
+        break;
+      case 'quiz':
+        navigation.navigate('QuizPage');
+        break;
+      case 'maps':
+        const mpaTopic = educationalTopics[0];
+        navigation.navigate('TopicDetail', { topic: mpaTopic });
+        break;
+      case 'report':
+        navigation.navigate('Reports');
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
   };
 
   return (
@@ -196,77 +209,7 @@ const EcoComplianceHub: React.FC = () => {
           </View>
         </LinearGradient>
 
-        {/* Featured Content Section */}
-        <View style={styles.featuredSection}>
-          <View style={styles.sectionHeader}>
-            <BookOpen size={24} color="#06bfdb" />
-            <Text style={styles.sectionTitle}>Featured Learning Topics</Text>
-          </View>
-          <Text style={styles.sectionSubtitle}>
-            Explore comprehensive guides on marine conservation and compliance
-          </Text>
-        </View>
-
-        {/* Educational Cards Grid */}
-        <View style={styles.cardsContainer}>
-          {educationalTopics.map((topic: EducationalTopic, index: number) => (
-            <TouchableOpacity
-              key={topic.id}
-              style={[
-                styles.topicCard,
-                index % 2 === 0 ? styles.leftCard : styles.rightCard
-              ]}
-              onPress={() => handleTopicPress(topic)}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={[topic.gradient[0] + '20', topic.gradient[1] + '10']}
-                style={styles.cardGradient}
-              />
-              
-              <View style={styles.cardContent}>
-                <View style={styles.cardHeader}>
-                  <View style={[styles.cardIconContainer, {
-                    backgroundColor: topic.color + '20',
-                    borderColor: topic.color + '40'
-                  }]}>
-                    <topic.icon size={24} color={topic.color} />
-                  </View>
-                  <View style={styles.cardHeaderText}>
-                    <Text style={styles.cardTitle}>{topic.title}</Text>
-                    <Text style={styles.cardSubtitle}>{topic.subtitle}</Text>
-                  </View>
-                  <ChevronRight size={20} color="rgba(255,255,255,0.4)" />
-                </View>
-
-                <Image
-                  source={require('../../assets/images/nav6.jpg')}
-                  style={styles.cardImage}
-                  resizeMode="cover"
-                />
-
-                <Text style={styles.cardDescription}>
-                  {topic.description}
-                </Text>
-
-                <View style={styles.cardFooter}>
-                  <View style={styles.readTimeContainer}>
-                    <Clock size={14} color="rgba(255,255,255,0.6)" />
-                    <Text style={styles.readTime}>{topic.readTime}</Text>
-                  </View>
-                  <View style={[styles.topicBadge, {
-                    backgroundColor: topic.color + '20'
-                  }]}>
-                    <Text style={[styles.badgeText, { color: topic.color }]}>
-                      Learn More
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-
+        {/* Quick Actions Section */}
         <View style={styles.quickActionsSection}>
           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
           
@@ -305,8 +248,8 @@ const EcoComplianceHub: React.FC = () => {
                 colors={['rgba(16,185,129,0.2)', 'rgba(16,185,129,0.1)']}
                 style={styles.quickActionGradient}
               >
-                <MapPin size={24} color="#10b981" />
-                <Text style={styles.quickActionText}>Find MPAs</Text>
+                <BookOpen size={24} color="#10b981" />
+                <Text style={styles.quickActionText}>Learn MPAs</Text>
               </LinearGradient>
             </TouchableOpacity>
             
@@ -323,6 +266,70 @@ const EcoComplianceHub: React.FC = () => {
               </LinearGradient>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Featured Content Section */}
+        <View style={styles.featuredSection}>
+          <View style={styles.sectionHeader}>
+            <BookOpen size={24} color="#06bfdb" />
+            <Text style={styles.sectionTitle}>Featured Learning Topics</Text>
+          </View>
+          <Text style={styles.sectionSubtitle}>
+            Explore comprehensive guides on marine conservation and compliance
+          </Text>
+        </View>
+
+        {/* Educational Cards Grid */}
+        <View style={styles.cardsContainer}>
+          {educationalTopics.map((topic: EducationalTopic) => (
+            <TouchableOpacity
+              key={topic.id}
+              style={styles.topicCard}
+              onPress={() => handleTopicPress(topic)}
+              activeOpacity={0.8}
+            >
+              {/* Card Image Section */}
+              <View style={styles.cardImageSection}>
+                <Image
+                  source={{ uri: topic.image }}
+                  style={styles.cardImage}
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(10,25,41,0.9)']}
+                  style={styles.imageOverlay}
+                />
+              </View>
+
+              {/* Card Content Section */}
+              <View style={styles.cardContent}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.headerTitleGroup}>
+                    <Text style={styles.cardTitle}>{topic.title}</Text>
+                    <Text style={styles.cardSubtitle}>{topic.subtitle}</Text>
+                  </View>
+                  <ChevronRight size={20} color="rgba(255,255,255,0.4)" />
+                </View>
+
+                <Text style={styles.cardDescription}>
+                  {topic.description}
+                </Text>
+
+                <View style={styles.cardFooter}>
+                  <View style={styles.readTimeContainer}>
+                    <Clock size={12} color="rgba(255,255,255,0.5)" />
+                    <Text style={styles.readTime}>{topic.readTime}</Text>
+                  </View>
+                  <View style={[styles.topicBadge, {
+                    backgroundColor: topic.color + '25'
+                  }]}>
+                    <Text style={[styles.badgeText, { color: topic.color }]}>
+                      Learn More
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <View style={{ height: 40 }} />
@@ -424,126 +431,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Section Headers
-  featuredSection: {
-    margin: 16,
-    marginBottom: 8,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#fff',
-    marginLeft: 8,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    lineHeight: 20,
-  },
-
-  // Cards Container
-  cardsContainer: {
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  topicCard: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 20,
-    marginBottom: 16,
-    position: 'relative',
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  leftCard: {
-    width: width * 0.44,
-  },
-  rightCard: {
-    width: width * 0.44,
-  },
-  cardGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-  },
-  cardContent: {
-    padding: 16,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  cardIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-    borderWidth: 1,
-  },
-  cardHeaderText: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 2,
-  },
-  cardSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
-  },
-  cardImage: {
-    width: '100%',
-    height: 100,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  cardDescription: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.7)',
-    lineHeight: 18,
-    marginBottom: 16,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  readTimeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  readTime: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.6)',
-    marginLeft: 4,
-  },
-  topicBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-  },
-
   // Quick Actions
   quickActionsSection: {
     margin: 16,
+    marginTop: 8,
   },
   quickActionsTitle: {
     fontSize: 20,
@@ -576,6 +467,118 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     fontWeight: '500',
+  },
+
+  // Section Headers
+  featuredSection: {
+    margin: 16,
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#fff',
+    marginLeft: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 20,
+  },
+
+  // Cards Container
+  cardsContainer: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  topicCard: {
+    width: width * 0.44,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    marginBottom: 8,
+  },
+  cardImageSection: {
+    width: '100%',
+    height: 140,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  cardContent: {
+    padding: 14,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  headerTitleGroup: {
+    flex: 1,
+    marginRight: 8,
+  },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 2,
+  },
+  cardSubtitle: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 14,
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  readTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  readTime: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.5)',
+    marginLeft: 4,
+  },
+  topicBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '600',
   },
 });
 
