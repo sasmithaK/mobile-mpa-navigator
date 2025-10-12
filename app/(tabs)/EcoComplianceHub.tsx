@@ -10,8 +10,7 @@ import {
   StatusBar,
   Image
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { 
   Leaf, 
@@ -22,7 +21,8 @@ import {
   ChevronRight,
   PlayCircle,
   AlertTriangle,
-  Clock
+  Clock,
+  ChevronLeft
 } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -45,19 +45,8 @@ interface Stat {
   icon: React.ComponentType<any>;
 }
 
-type RootStackParamList = {
-  VideoLearningPage: undefined;
-  QuizPage: undefined;
-  Reports: undefined;
-  TopicDetail: {
-    topic: EducationalTopic;
-  };
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
 const EcoComplianceHub: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const router = useRouter();
   const scrollY = new Animated.Value(0);
 
   const educationalTopics: EducationalTopic[] = [
@@ -136,38 +125,85 @@ const EcoComplianceHub: React.FC = () => {
     { label: 'Educational Resources', value: '200+', icon: BookOpen }
   ];
 
+  // FIXED: Use push instead of back for consistent navigation to Home
+  const handleBackToHome = () => {
+    router.push('/(tabs)/Home');
+  };
+
   const handleTopicPress = (topic: EducationalTopic): void => {
-    navigation.navigate('TopicDetail', { topic });
+    router.push({
+      pathname: '/(tabs)/TopicDetail',
+      params: { 
+        topicId: topic.id,
+        title: topic.title,
+        subtitle: topic.subtitle,
+        color: topic.color,
+        description: topic.description,
+        readTime: topic.readTime,
+        image: topic.image
+      }
+    });
   };
 
   const handleQuickAction = (action: string): void => {
+    console.log('Quick action pressed:', action);
+    
     switch(action) {
       case 'videos':
-        navigation.navigate('VideoLearningPage');
+        router.push('/(tabs)/VideoLearningPage');
         break;
       case 'quiz':
-        navigation.navigate('QuizPage');
+        router.push('/(tabs)/QuizPage');
         break;
       case 'maps':
         const mpaTopic = educationalTopics[0];
-        navigation.navigate('TopicDetail', { topic: mpaTopic });
+        router.push({
+          pathname: '/(tabs)/TopicDetail',
+          params: { 
+            topicId: mpaTopic.id,
+            title: mpaTopic.title,
+            subtitle: mpaTopic.subtitle,
+            color: mpaTopic.color,
+            description: mpaTopic.description,
+            readTime: mpaTopic.readTime,
+            image: mpaTopic.image
+          }
+        });
         break;
       case 'report':
-        navigation.navigate('Reports');
+        router.push('/(tabs)/Reports');
         break;
       default:
         console.log('Unknown action:', action);
     }
   };
 
+  const accentColor = '#06bfdb';
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       
       <LinearGradient
         colors={['#0a1929', '#1a365d', '#0f172a']}
         style={styles.gradient}
       />
+
+      {/* Header with Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleBackToHome} style={styles.backBtn}>
+          <ChevronLeft size={24} color="#fff" />
+        </TouchableOpacity>
+
+        <View style={styles.headerCenter}>
+          <View style={[styles.logoRing, { borderColor: accentColor }]}>
+            <Leaf size={20} color={accentColor} />
+          </View>
+          <Text style={styles.headerTitle}>Eco-Compliance Hub</Text>
+        </View>
+
+        <View style={styles.headerRight} />
+      </View>
 
       <Animated.ScrollView
         style={styles.scrollView}
@@ -217,6 +253,7 @@ const EcoComplianceHub: React.FC = () => {
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('videos')}
+              activeOpacity={0.7}
             >
               <LinearGradient
                 colors={['rgba(59,130,246,0.2)', 'rgba(59,130,246,0.1)']}
@@ -230,6 +267,7 @@ const EcoComplianceHub: React.FC = () => {
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('quiz')}
+              activeOpacity={0.7}
             >
               <LinearGradient
                 colors={['rgba(245,158,11,0.2)', 'rgba(245,158,11,0.1)']}
@@ -243,6 +281,7 @@ const EcoComplianceHub: React.FC = () => {
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('maps')}
+              activeOpacity={0.7}
             >
               <LinearGradient
                 colors={['rgba(16,185,129,0.2)', 'rgba(16,185,129,0.1)']}
@@ -256,6 +295,7 @@ const EcoComplianceHub: React.FC = () => {
             <TouchableOpacity 
               style={styles.quickActionCard}
               onPress={() => handleQuickAction('report')}
+              activeOpacity={0.7}
             >
               <LinearGradient
                 colors={['rgba(239,68,68,0.2)', 'rgba(239,68,68,0.1)']}
@@ -348,11 +388,61 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  
+  // Header Styles
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 20,
+    zIndex: 10,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  headerCenter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    zIndex: -1,
+  },
+  logoRing: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  headerRight: {
+    width: 44,
+  },
+  
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 60,
+    paddingTop: 20,
   },
   
   // Hero Section

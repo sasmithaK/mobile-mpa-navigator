@@ -1,74 +1,187 @@
 import React, { useState } from 'react';
 import {
+  ScrollView,
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
-  TextInput,
-  StatusBar,
   Dimensions,
-  SafeAreaView,
+  Animated,
+  StatusBar,
+  Image
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import { 
+  Leaf, 
+  BookOpen,
+  Award,
+  Users,
+  Shield,
+  ChevronRight,
+  PlayCircle,
+  AlertTriangle,
+  Clock,
+  ChevronLeft
+} from 'lucide-react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-const WeatherConditions = () => {
-  const [selectedArea, setSelectedArea] = useState('Indian Ocean - Sri Lanka');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
+interface EducationalTopic {
+  id: number;
+  title: string;
+  subtitle: string;
+  icon: React.ComponentType<any>;
+  color: string;
+  gradient: string[];
+  description: string;
+  readTime: string;
+  image: string;
+}
 
-  const recentSearches = [
-    'Indian Ocean - Sri Lanka',
-    'Bay of Bengal',
-    'Arabian Sea',
-    'Maldives Region',
-    'South China Sea'
+interface Stat {
+  label: string;
+  value: string;
+  icon: React.ComponentType<any>;
+}
+
+const EcoComplianceHub: React.FC = () => {
+  const router = useRouter();
+  const scrollY = new Animated.Value(0);
+
+  const educationalTopics: EducationalTopic[] = [
+    {
+      id: 1,
+      title: 'Marine Protected Areas',
+      subtitle: 'Understanding conservation zones',
+      icon: Shield,
+      color: '#10b981',
+      gradient: ['#10b981', '#059669'],
+      description: 'Learn about different types of MPAs, their boundaries, and protection levels.',
+      readTime: '5 min read',
+      image: 'https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=400&h=280&fit=crop' 
+    },
+    {
+      id: 2,
+      title: 'Marine Wildlife Protection',
+      subtitle: 'Protecting ocean biodiversity',
+      icon: Shield,
+      color: '#3b82f6',
+      gradient: ['#3b82f6', '#1d4ed8'],
+      description: 'Discover endangered species, migration patterns, and conservation efforts.',
+      readTime: '7 min read',
+      image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400&h=280&fit=crop'
+    },
+    {
+      id: 3,
+      title: 'Sustainable Fishing Practices',
+      subtitle: 'Responsible fishing guidelines',
+      icon: Shield,
+      color: '#f59e0b',
+      gradient: ['#f59e0b', '#d97706'],
+      description: 'Best practices for sustainable fishing and marine resource management.',
+      readTime: '6 min read',
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=280&fit=crop'
+    },
+    {
+      id: 4,
+      title: 'Ocean Pollution Prevention',
+      subtitle: 'Keeping our oceans clean',
+      icon: Shield,
+      color: '#06b6d4',
+      gradient: ['#06b6d4', '#0891b2'],
+      description: 'Understanding pollution sources and prevention strategies.',
+      readTime: '4 min read',
+      image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=280&fit=crop'
+    },
+    {
+      id: 5,
+      title: 'Compliance Regulations',
+      subtitle: 'Maritime laws & guidelines',
+      icon: Shield,
+      color: '#8b5cf6',
+      gradient: ['#8b5cf6', '#7c3aed'],
+      description: 'International and local regulations for marine conservation.',
+      readTime: '8 min read',
+      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=280&fit=crop'
+    },
+    {
+      id: 6,
+      title: 'Climate Change Impact',
+      subtitle: 'Ocean warming & acidification',
+      icon: Shield,
+      color: '#ef4444',
+      gradient: ['#ef4444', '#dc2626'],
+      description: 'How climate change affects marine ecosystems and biodiversity.',
+      readTime: '9 min read',
+      image: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=280&fit=crop'
+    },
   ];
 
-  const weatherData = {
-    location: selectedArea,
-    lastUpdated: '5 mins ago',
-    temperature: 28,
-    feelsLike: 31,
-    condition: 'Partly Cloudy',
-    windSpeed: 12,
-    windDirection: 'NE',
-    windGust: 18,
-    humidity: 78,
-    visibility: 9.5,
-    pressure: 1012,
-    uvIndex: 7,
-    seaState: 'Moderate',
-    waveHeight: 1.8,
-    waveDirection: 'Northeast',
-    swellHeight: 2.1,
-    swellPeriod: 8,
-    tideStatus: 'High Tide',
-    tideTime: '14:32',
-    nextTide: 'Low at 20:45',
-    seaTemp: 27,
-    salinity: 34.5,
-    currentSpeed: 0.8,
-    currentDirection: 'East',
-    alerts: [
-      { type: 'warning', message: 'Small Craft Advisory in effect' }
-    ]
+  const stats: Stat[] = [
+    { label: 'Protected Areas', value: '15,000+', icon: Shield },
+    { label: 'Species Protected', value: '8,500+', icon: Shield },
+    { label: 'Active Users', value: '25,000+', icon: Users },
+    { label: 'Educational Resources', value: '200+', icon: BookOpen }
+  ];
+
+  const handleBackToHome = () => {
+    router.push('/(tabs)/Home');
   };
 
-  const hourlyForecast = [
-    { time: '14:00', temp: 28, wind: 12, waves: 1.8, icon: 'cloud' },
-    { time: '15:00', temp: 29, wind: 14, waves: 2.0, icon: 'cloud' },
-    { time: '16:00', temp: 29, wind: 13, waves: 1.9, icon: 'sun' },
-    { time: '17:00', temp: 28, wind: 11, waves: 1.7, icon: 'sun' },
-    { time: '18:00', temp: 27, wind: 10, waves: 1.5, icon: 'sun' },
-    { time: '19:00', temp: 26, wind: 9, waves: 1.4, icon: 'moon' }
-  ];
+  const handleTopicPress = (topic: EducationalTopic): void => {
+    // Using expo-router navigation with params
+    router.push({
+      pathname: '/(tabs)/TopicDetail',
+      params: { 
+        topicId: topic.id,
+        title: topic.title,
+        subtitle: topic.subtitle,
+        color: topic.color,
+        description: topic.description,
+        readTime: topic.readTime,
+        image: topic.image
+      }
+    });
+  };
+
+  const handleQuickAction = (action: string): void => {
+    console.log('Quick action pressed:', action);
+    
+    switch(action) {
+      case 'videos':
+        router.push('/(tabs)/VideoLearningPage');
+        break;
+      case 'quiz':
+        router.push('/(tabs)/QuizPage');
+        break;
+      case 'maps':
+        const mpaTopic = educationalTopics[0];
+        router.push({
+          pathname: '/(tabs)/TopicDetail',
+          params: { 
+            topicId: mpaTopic.id,
+            title: mpaTopic.title,
+            subtitle: mpaTopic.subtitle,
+            color: mpaTopic.color,
+            description: mpaTopic.description,
+            readTime: mpaTopic.readTime,
+            image: mpaTopic.image
+          }
+        });
+        break;
+      case 'report':
+        router.push('/(tabs)/Reports');
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
+  };
+
+  const accentColor = '#06bfdb';
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       
       <LinearGradient
@@ -76,241 +189,192 @@ const WeatherConditions = () => {
         style={styles.gradient}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={styles.headerLeft}>
-              <View style={styles.iconContainer}>
-                <Feather name="cloud" size={20} color="#06bfdb" />
-              </View>
-              <View>
-                <Text style={styles.headerTitle}>Weather & Sea</Text>
-                <Text style={styles.headerSubtitle}>Real-time conditions</Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              onPress={() => setShowSearch(!showSearch)}
-              style={styles.searchButton}
-            >
-              <Feather name="search" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
+      {/* Header with Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleBackToHome} style={styles.backBtn}>
+          <ChevronLeft size={24} color="#fff" />
+        </TouchableOpacity>
 
-          {/* Search Bar */}
-          {showSearch && (
-            <View style={styles.searchContainer}>
-              <View style={styles.searchInputContainer}>
-                <Feather name="search" size={18} color="rgba(255,255,255,0.4)" style={styles.searchIcon} />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search location or coordinates..."
-                  placeholderTextColor="rgba(255,255,255,0.4)"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-              </View>
-              <View style={styles.recentSearches}>
-                {recentSearches.map((location, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => {
-                      setSelectedArea(location);
-                      setSearchQuery('');
-                      setShowSearch(false);
-                    }}
-                    style={styles.recentSearchItem}
-                  >
-                    <Text style={styles.recentSearchText}>{location}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Location */}
-          <View style={styles.locationContainer}>
-            <Feather name="map-pin" size={16} color="#06bfdb" />
-            <Text style={styles.locationText}>{weatherData.location}</Text>
-            <Text style={styles.locationDot}>•</Text>
-            <Text style={styles.lastUpdated}>{weatherData.lastUpdated}</Text>
+        <View style={styles.headerCenter}>
+          <View style={[styles.logoRing, { borderColor: accentColor }]}>
+            <Leaf size={20} color={accentColor} />
           </View>
+          <Text style={styles.headerTitle}>Eco-Compliance Hub</Text>
         </View>
 
-        <View style={styles.content}>
-          {/* Alerts */}
-          {weatherData.alerts.length > 0 && (
-            <LinearGradient
-              colors={['rgba(251,146,60,0.2)', 'rgba(234,179,8,0.2)']}
-              style={styles.alertCard}
-            >
-              <View style={styles.alertContent}>
-                <Feather name="alert-triangle" size={20} color="#fb923c" />
-                <View style={styles.alertTextContainer}>
-                  <Text style={styles.alertTitle}>Weather Alert</Text>
-                  <Text style={styles.alertMessage}>{weatherData.alerts[0].message}</Text>
-                </View>
-              </View>
-            </LinearGradient>
-          )}
+        <View style={styles.headerRight} />
+      </View>
 
-          {/* Current Conditions Hero */}
-          <LinearGradient
-            colors={['rgba(6,191,219,0.2)', 'rgba(34,211,238,0.1)']}
-            style={styles.heroCard}
-          >
-            <View style={styles.heroGlow} />
-            
-            <View style={styles.heroContent}>
-              <View style={styles.heroTop}>
-                <View>
-                  <Text style={styles.temperature}>{weatherData.temperature}°</Text>
-                  <Text style={styles.condition}>{weatherData.condition}</Text>
-                  <Text style={styles.feelsLike}>Feels like {weatherData.feelsLike}°C</Text>
-                </View>
-                <View style={styles.weatherIcon}>
-                  <Feather name="cloud" size={40} color="#06bfdb" />
-                </View>
-              </View>
-
-              <View style={styles.quickStats}>
-                <View style={styles.quickStatCard}>
-                  <Feather name="wind" size={20} color="#22d3ee" />
-                  <Text style={styles.quickStatLabel}>Wind</Text>
-                  <Text style={styles.quickStatValue}>{weatherData.windSpeed} kt</Text>
-                  <Text style={styles.quickStatExtra}>{weatherData.windDirection}</Text>
-                </View>
-                <View style={styles.quickStatCard}>
-                  <Feather name="activity" size={20} color="#10b981" />
-                  <Text style={styles.quickStatLabel}>Waves</Text>
-                  <Text style={styles.quickStatValue}>{weatherData.waveHeight} m</Text>
-                  <Text style={styles.quickStatExtra}>{weatherData.seaState}</Text>
-                </View>
-                <View style={styles.quickStatCard}>
-                  <Feather name="eye" size={20} color="#3b82f6" />
-                  <Text style={styles.quickStatLabel}>Visibility</Text>
-                  <Text style={styles.quickStatValue}>{weatherData.visibility} km</Text>
-                  <Text style={styles.quickStatExtra}> </Text>
-                </View>
-              </View>
+      <Animated.ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+      >
+        {/* Hero Section */}
+        <LinearGradient
+          colors={['rgba(6,191,219,0.2)', 'rgba(34,211,238,0.1)']}
+          style={styles.heroContainer}
+        >
+          <View style={styles.heroGlow} />
+          
+          <View style={styles.heroContent}>
+            <View style={styles.heroIconContainer}>
+              <Leaf size={40} color="#06bfdb" />
             </View>
-          </LinearGradient>
+            <Text style={styles.heroTitle}>
+              Eco-Compliance & Awareness Hub
+            </Text>
+            <Text style={styles.heroSubtitle}>
+              Learn, protect, and preserve our marine ecosystems through education and responsible practices
+            </Text>
 
-          {/* Hourly Forecast */}
-          <View style={styles.sectionCard}>
-            <View style={styles.sectionHeader}>
-              <Feather name="sun" size={20} color="#06bfdb" />
-              <Text style={styles.sectionTitle}>Hourly Forecast</Text>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.hourlyScroll}
-            >
-              {hourlyForecast.map((hour, idx) => (
-                <View key={idx} style={styles.hourlyCard}>
-                  <Text style={styles.hourlyTime}>{hour.time}</Text>
-                  <Feather
-                    name={hour.icon === 'cloud' ? 'cloud' : hour.icon === 'sun' ? 'sun' : 'moon'}
-                    size={24}
-                    color={hour.icon === 'sun' ? '#fb923c' : hour.icon === 'moon' ? '#93c5fd' : '#06bfdb'}
-                    style={styles.hourlyIcon}
-                  />
-                  <Text style={styles.hourlyTemp}>{hour.temp}°</Text>
-                  <Text style={styles.hourlyWind}>{hour.wind}kt</Text>
-                  <Text style={styles.hourlyWaves}>{hour.waves}m</Text>
+            <View style={styles.heroStats}>
+              {stats.map((stat: Stat, index: number) => (
+                <View key={index} style={styles.heroStatItem}>
+                  <stat.icon size={20} color="#22d3ee" />
+                  <Text style={styles.heroStatValue}>{stat.value}</Text>
+                  <Text style={styles.heroStatLabel}>{stat.label}</Text>
                 </View>
               ))}
-            </ScrollView>
-          </View>
-
-          {/* Sea Conditions */}
-          <LinearGradient
-            colors={['rgba(16,185,129,0.2)', 'rgba(5,150,105,0.1)']}
-            style={styles.sectionCard}
-          >
-            <View style={styles.sectionHeader}>
-              <Feather name="activity" size={20} color="#10b981" />
-              <Text style={styles.sectionTitle}>Sea Conditions</Text>
-            </View>
-            <View style={styles.seaGrid}>
-              <View style={styles.seaCard}>
-                <Text style={styles.seaLabel}>Wave Height</Text>
-                <Text style={[styles.seaValue, { color: '#10b981' }]}>{weatherData.waveHeight}m</Text>
-                <Text style={styles.seaExtra}>{weatherData.waveDirection}</Text>
-              </View>
-              <View style={styles.seaCard}>
-                <Text style={styles.seaLabel}>Swell</Text>
-                <Text style={[styles.seaValue, { color: '#10b981' }]}>{weatherData.swellHeight}m</Text>
-                <Text style={styles.seaExtra}>{weatherData.swellPeriod}s period</Text>
-              </View>
-              <View style={styles.seaCard}>
-                <Text style={styles.seaLabel}>Sea Temp</Text>
-                <Text style={[styles.seaValue, { color: '#22d3ee' }]}>{weatherData.seaTemp}°C</Text>
-                <Text style={styles.seaExtra}> </Text>
-              </View>
-              <View style={styles.seaCard}>
-                <Text style={styles.seaLabel}>Current</Text>
-                <Text style={[styles.seaValue, { color: '#3b82f6' }]}>{weatherData.currentSpeed} kt</Text>
-                <Text style={styles.seaExtra}>{weatherData.currentDirection}</Text>
-              </View>
-            </View>
-          </LinearGradient>
-
-          {/* Atmospheric Details */}
-          <View style={styles.twoColumnGrid}>
-            <View style={styles.detailCard}>
-              <View style={styles.detailHeader}>
-                <Feather name="droplet" size={20} color="#22d3ee" />
-                <Text style={styles.detailTitle}>Humidity</Text>
-              </View>
-              <Text style={styles.detailValue}>{weatherData.humidity}%</Text>
-            </View>
-            <View style={styles.detailCard}>
-              <View style={styles.detailHeader}>
-                <Feather name="thermometer" size={20} color="#fb923c" />
-                <Text style={styles.detailTitle}>Pressure</Text>
-              </View>
-              <Text style={styles.detailValue}>{weatherData.pressure}</Text>
-              <Text style={styles.detailUnit}>hPa</Text>
             </View>
           </View>
+        </LinearGradient>
 
-          {/* Tide Information */}
-          <LinearGradient
-            colors={['rgba(59,130,246,0.2)', 'rgba(37,99,235,0.1)']}
-            style={styles.sectionCard}
-          >
-            <View style={styles.sectionHeader}>
-              <Feather name="navigation" size={20} color="#3b82f6" />
-              <Text style={styles.sectionTitle}>Tide Information</Text>
-            </View>
-            <View style={styles.tideInfo}>
-              <View style={styles.tideRow}>
-                <Text style={styles.tideLabel}>Current Status</Text>
-                <Text style={[styles.tideValue, { color: '#3b82f6' }]}>{weatherData.tideStatus}</Text>
-              </View>
-              <View style={styles.tideRow}>
-                <Text style={styles.tideLabel}>Time</Text>
-                <Text style={styles.tideValue}>{weatherData.tideTime}</Text>
-              </View>
-              <View style={styles.tideRow}>
-                <Text style={styles.tideLabel}>Next Tide</Text>
-                <Text style={styles.tideValue}>{weatherData.nextTide}</Text>
-              </View>
-            </View>
-          </LinearGradient>
+        {/* Quick Actions Section */}
+        <View style={styles.quickActionsSection}>
+          <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+          
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickAction('videos')}
+              activeOpacity={0.7}
+            >
+              <LinearGradient
+                colors={['rgba(59,130,246,0.2)', 'rgba(59,130,246,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <PlayCircle size={24} color="#3b82f6" />
+                <Text style={styles.quickActionText}>Watch Videos</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickAction('quiz')}
+              activeOpacity={0.7}
+            >
+              <LinearGradient
+                colors={['rgba(245,158,11,0.2)', 'rgba(245,158,11,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <Award size={24} color="#f59e0b" />
+                <Text style={styles.quickActionText}>Take Quiz</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickAction('maps')}
+              activeOpacity={0.7}
+            >
+              <LinearGradient
+                colors={['rgba(16,185,129,0.2)', 'rgba(16,185,129,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <BookOpen size={24} color="#10b981" />
+                <Text style={styles.quickActionText}>Learn MPAs</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickAction('report')}
+              activeOpacity={0.7}
+            >
+              <LinearGradient
+                colors={['rgba(239,68,68,0.2)', 'rgba(239,68,68,0.1)']}
+                style={styles.quickActionGradient}
+              >
+                <AlertTriangle size={24} color="#ef4444" />
+                <Text style={styles.quickActionText}>Report Issue</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-          {/* Footer */}
-          <Text style={styles.footer}>
-            Data refreshes automatically every 10 minutes
+        {/* Featured Content Section */}
+        <View style={styles.featuredSection}>
+          <View style={styles.sectionHeader}>
+            <BookOpen size={24} color="#06bfdb" />
+            <Text style={styles.sectionTitle}>Featured Learning Topics</Text>
+          </View>
+          <Text style={styles.sectionSubtitle}>
+            Explore comprehensive guides on marine conservation and compliance
           </Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        {/* Educational Cards Grid */}
+        <View style={styles.cardsContainer}>
+          {educationalTopics.map((topic: EducationalTopic) => (
+            <TouchableOpacity
+              key={topic.id}
+              style={styles.topicCard}
+              onPress={() => handleTopicPress(topic)}
+              activeOpacity={0.8}
+            >
+              {/* Card Image Section */}
+              <View style={styles.cardImageSection}>
+                <Image
+                  source={{ uri: topic.image }}
+                  style={styles.cardImage}
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(10,25,41,0.9)']}
+                  style={styles.imageOverlay}
+                />
+              </View>
+
+              {/* Card Content Section */}
+              <View style={styles.cardContent}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.headerTitleGroup}>
+                    <Text style={styles.cardTitle}>{topic.title}</Text>
+                    <Text style={styles.cardSubtitle}>{topic.subtitle}</Text>
+                  </View>
+                  <ChevronRight size={20} color="rgba(255,255,255,0.4)" />
+                </View>
+
+                <Text style={styles.cardDescription}>
+                  {topic.description}
+                </Text>
+
+                <View style={styles.cardFooter}>
+                  <View style={styles.readTimeContainer}>
+                    <Clock size={12} color="rgba(255,255,255,0.5)" />
+                    <Text style={styles.readTime}>{topic.readTime}</Text>
+                  </View>
+                  <View style={[styles.topicBadge, {
+                    backgroundColor: topic.color + '25'
+                  }]}>
+                    <Text style={[styles.badgeText, { color: topic.color }]}>
+                      Learn More
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={{ height: 40 }} />
+      </Animated.ScrollView>
+    </View>
   );
 };
 
@@ -324,147 +388,71 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  scrollView: {
-    flex: 1,
-  },
+  
+  // Header Styles
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: 'rgba(10,25,41,0.8)',
-  },
-  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 20,
+    zIndex: 10,
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(6,191,219,0.2)',
-    borderWidth: 2,
-    borderColor: '#06bfdb',
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  headerCenter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    zIndex: -1,
+  },
+  logoRing: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   headerTitle: {
-    fontSize: 20,
+    color: '#fff',
+    fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
+    letterSpacing: 0.5,
   },
-  headerSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
+  headerRight: {
+    width: 44,
   },
-  searchButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchContainer: {
-    marginBottom: 16,
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 48,
-  },
-  searchIcon: {
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 15,
-  },
-  recentSearches: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 12,
-  },
-  recentSearchItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 16,
-  },
-  recentSearchText: {
-    color: '#fff',
-    fontSize: 12,
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  locationText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  locationDot: {
-    color: 'rgba(255,255,255,0.4)',
-  },
-  lastUpdated: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 14,
-  },
-  content: {
-    padding: 16,
-    gap: 16,
-    paddingBottom: 32,
-  },
-  alertCard: {
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.4)',
-  },
-  alertContent: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  alertTextContainer: {
+  
+  scrollView: {
     flex: 1,
   },
-  alertTitle: {
-    color: '#fed7aa',
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 4,
+  scrollContent: {
+    paddingTop: 20,
   },
-  alertMessage: {
-    color: 'rgba(254,215,170,0.8)',
-    fontSize: 13,
-  },
-  heroCard: {
+  
+  // Hero Section
+  heroContainer: {
+    margin: 16,
     borderRadius: 24,
-    padding: 24,
+    position: 'relative',
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(6,191,219,0.3)',
-    overflow: 'hidden',
   },
   heroGlow: {
     position: 'absolute',
@@ -476,29 +464,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6,191,219,0.1)',
   },
   heroContent: {
-    gap: 32,
+    padding: 24,
+    alignItems: 'center',
   },
-  heroTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  temperature: {
-    fontSize: 72,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 8,
-  },
-  condition: {
-    fontSize: 20,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 4,
-  },
-  feelsLike: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-  },
-  weatherIcon: {
+  heroIconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
@@ -507,179 +476,200 @@ const styles = StyleSheet.create({
     borderColor: '#06bfdb',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 16,
   },
-  quickStats: {
+  heroTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.7)',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  heroStats: {
     flexDirection: 'row',
-    gap: 12,
+    justifyContent: 'space-around',
+    width: '100%',
+    flexWrap: 'wrap',
   },
-  quickStatCard: {
-    flex: 1,
+  heroStatItem: {
+    alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    padding: 12,
+    padding: 16,
+    borderRadius: 16,
+    margin: 4,
+    minWidth: width * 0.2,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  quickStatLabel: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.6)',
-    marginBottom: 4,
+  heroStatValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
     marginTop: 8,
   },
-  quickStatValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  quickStatExtra: {
-    fontSize: 10,
+  heroStatLabel: {
+    fontSize: 12,
     color: 'rgba(255,255,255,0.6)',
-    marginTop: 2,
+    marginTop: 4,
+    textAlign: 'center',
   },
-  sectionCard: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+
+  // Quick Actions
+  quickActionsSection: {
+    margin: 16,
+    marginTop: 8,
+  },
+  quickActionsTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 16,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  quickActionCard: {
+    width: width * 0.21,
+    aspectRatio: 1,
     borderRadius: 16,
-    padding: 20,
+    marginBottom: 8,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+  quickActionGradient: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionText: {
+    fontSize: 11,
+    color: '#fff',
+    marginTop: 8,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+
+  // Section Headers
+  featuredSection: {
+    margin: 16,
+    marginBottom: 8,
+    marginTop: 8,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#fff',
+    marginLeft: 8,
   },
-  hourlyScroll: {
-    marginHorizontal: -20,
-    paddingHorizontal: 20,
-  },
-  hourlyCard: {
-    width: 80,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    padding: 12,
-    marginRight: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  hourlyTime: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.6)',
-    marginBottom: 8,
-  },
-  hourlyIcon: {
-    marginBottom: 8,
-  },
-  hourlyTemp: {
+  sectionSubtitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  hourlyWind: {
-    fontSize: 11,
     color: 'rgba(255,255,255,0.6)',
+    lineHeight: 20,
   },
-  hourlyWaves: {
-    fontSize: 11,
-    color: '#10b981',
-    marginTop: 4,
-  },
-  seaGrid: {
+
+  // Cards Container
+  cardsContainer: {
+    paddingHorizontal: 16,
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
   },
-  seaCard: {
-    flex: 1,
-    minWidth: '45%',
+  topicCard: {
+    width: width * 0.44,
     backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+    marginBottom: 8,
   },
-  seaLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
-    marginBottom: 4,
+  cardImageSection: {
+    width: '100%',
+    height: 140,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  seaValue: {
-    fontSize: 24,
+  cardImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  cardContent: {
+    padding: 14,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  headerTitleGroup: {
+    flex: 1,
+    marginRight: 8,
+  },
+  cardTitle: {
+    fontSize: 15,
     fontWeight: '700',
-    marginBottom: 4,
+    color: '#fff',
+    marginBottom: 2,
   },
-  seaExtra: {
+  cardSubtitle: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.6)',
+    lineHeight: 14,
   },
-  twoColumnGrid: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  detailCard: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  detailHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  cardDescription: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 16,
     marginBottom: 12,
   },
-  detailTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  detailValue: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  detailUnit: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: 4,
-  },
-  tideInfo: {
-    gap: 12,
-  },
-  tideRow: {
+  cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
-  tideLabel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
+  readTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  tideValue: {
-    fontSize: 14,
+  readTime: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.5)',
+    marginLeft: 4,
+  },
+  topicBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  badgeText: {
+    fontSize: 10,
     fontWeight: '600',
-    color: '#fff',
-  },
-  footer: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.4)',
-    textAlign: 'center',
-    marginTop: 8,
   },
 });
 
-export default WeatherConditions;
+export default EcoComplianceHub;

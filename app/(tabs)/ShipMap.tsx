@@ -10,15 +10,11 @@ import {
   TextInput,
   ScrollView,
   Animated,
-  PanResponder,
+  StatusBar,
 } from 'react-native';
-
-// @ts-ignore
+import { useRouter } from 'expo-router';
 import Slider from '@react-native-community/slider';
-
 import { 
-  ZoomIn, 
-  ZoomOut, 
   Home,
   Eye,
   EyeOff,
@@ -40,6 +36,8 @@ import {
   Menu,
   MapPin,
   Layers,
+  ArrowLeft,
+  ChevronLeft,
 } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -183,7 +181,6 @@ const MapComponent = ({
   getZoneColor,
   hotspotCategories
 }: any) => {
-  // Check if we're on native platform and react-native-maps is available
   if (Platform.OS !== 'web') {
     try {
       const MapView = require('react-native-maps').default;
@@ -196,7 +193,6 @@ const MapComponent = ({
           onRegionChangeComplete={onRegionChange}
           onPress={isMarkingMode ? onMapPress : undefined}
         >
-          {/* Vessel Routes */}
           {vessels.map((vessel: Vessel) => {
             if (!vessel.route || vessel.route.length === 0) return null;
             
@@ -216,7 +212,6 @@ const MapComponent = ({
             );
           })}
 
-          {/* Sensitive Zones */}
           {zonesVisible && sensitiveZones.map((zone: SensitiveZone) => (
             <React.Fragment key={zone.id}>
               <Circle
@@ -242,7 +237,6 @@ const MapComponent = ({
             </React.Fragment>
           ))}
 
-          {/* Hotspots */}
           {hotspots.map((hotspot: Hotspot) => {
             const config = hotspotCategories[hotspot.category];
             return (
@@ -278,7 +272,6 @@ const MapComponent = ({
             );
           })}
 
-          {/* Vessels */}
           {vessels.map((vessel: Vessel) => (
             <Marker
               key={vessel.id}
@@ -306,7 +299,7 @@ const MapComponent = ({
     }
   }
 
-  // Web fallback with improved visuals
+  // Web fallback
   const [mapDimensions, setMapDimensions] = React.useState({ width: 0, height: 0 });
 
   const convertToMapPosition = (lat: number, lon: number) => {
@@ -457,6 +450,7 @@ const MapComponent = ({
 };
 
 const ShipMap = () => {
+  const router = useRouter();
   const [region, setRegion] = useState({
     latitude: 20,
     longitude: 0,
@@ -487,13 +481,17 @@ const ShipMap = () => {
     radius: 5000
   });
   
-  // Bottom sheet state
   const [bottomSheetExpanded, setBottomSheetExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'vessels' | 'zones' | 'hotspots' | 'controls'>('controls');
   const bottomSheetAnimation = useRef(new Animated.Value(140)).current;
   
   const simulationIntervalRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef<number>(Date.now());
+
+  // Navigate back to Home
+  const handleBackToHome = () => {
+    router.push('/(tabs)/Home');
+  };
 
   useEffect(() => {
     initializeVessels();
@@ -535,7 +533,6 @@ const ShipMap = () => {
     return () => stopSimulation();
   }, [simulationActive, simulationSpeed]);
 
-  // Bottom sheet animation
   useEffect(() => {
     Animated.spring(bottomSheetAnimation, {
       toValue: bottomSheetExpanded ? height * 0.7 : 140,
@@ -918,6 +915,8 @@ const ShipMap = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
       {/* Full Screen Map */}
       <MapComponent
         region={region}
@@ -935,23 +934,29 @@ const ShipMap = () => {
         hotspotCategories={HOTSPOT_CATEGORIES}
       />
 
-      {/* Top Stats Bar */}
-      <View style={styles.topBar}>
-        <View style={styles.statPill}>
-          <Compass size={14} color="#3b82f6" />
-          <Text style={styles.statText}>{stats.totalDistance.toFixed(0)} nm</Text>
-        </View>
-        <View style={styles.statPill}>
-          <Navigation size={14} color="#3b82f6" />
-          <Text style={styles.statText}>{stats.activeRoutes} Routes</Text>
-        </View>
-        <View style={styles.statPill}>
-          <Zap size={14} color="#3b82f6" />
-          <Text style={styles.statText}>{stats.avgSpeed.toFixed(1)} kn</Text>
-        </View>
-        <View style={styles.statPill}>
-          <Shield size={14} color="#3b82f6" />
-          <Text style={styles.statText}>{stats.monitoredZones}</Text>
+      {/* Header with Back Button and Stats */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleBackToHome} style={styles.backBtn}>
+          <ChevronLeft size={24} color="#fff" />
+        </TouchableOpacity>
+
+        <View style={styles.topBar}>
+          <View style={styles.statPill}>
+            <Compass size={14} color="#3b82f6" />
+            <Text style={styles.statText}>{stats.totalDistance.toFixed(0)} nm</Text>
+          </View>
+          <View style={styles.statPill}>
+            <Navigation size={14} color="#3b82f6" />
+            <Text style={styles.statText}>{stats.activeRoutes} Routes</Text>
+          </View>
+          <View style={styles.statPill}>
+            <Zap size={14} color="#3b82f6" />
+            <Text style={styles.statText}>{stats.avgSpeed.toFixed(1)} kn</Text>
+          </View>
+          <View style={styles.statPill}>
+            <Shield size={14} color="#3b82f6" />
+            <Text style={styles.statText}>{stats.monitoredZones}</Text>
+          </View>
         </View>
       </View>
 
@@ -1639,6 +1644,52 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   
+  // Reorganized Header styles
+  header: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    gap: 12,
+    zIndex: 100,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  
+  // Top bar styles
+  topBar: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  statPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    gap: 4,
+    flex: 1,
+  },
+  statText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  
   // Native vessel marker styles
   vesselMarker: {
     alignItems: 'center',
@@ -1738,32 +1789,6 @@ const styles = StyleSheet.create({
     marginTop: -20,
   },
   
-  // Top bar styles
-  topBar: {
-    position: 'absolute',
-    top: 50,
-    left: 16,
-    right: 16,
-    flexDirection: 'row',
-    gap: 8,
-  },
-  statPill: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 20,
-    gap: 4,
-  },
-  statText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#1f2937',
-  },
-  
   // Alert styles
   alertsTop: {
     position: 'absolute',
@@ -1771,6 +1796,7 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     gap: 8,
+    zIndex: 10,
   },
   alertCard: {
     flexDirection: 'row',
@@ -1793,6 +1819,7 @@ const styles = StyleSheet.create({
     top: 110,
     right: 16,
     gap: 8,
+    zIndex: 10,
   },
   mapControlButton: {
     width: 44,

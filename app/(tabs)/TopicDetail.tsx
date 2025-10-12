@@ -29,6 +29,7 @@ import {
 } from 'lucide-react-native';
 import { Video } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router'; // ADD THIS IMPORT
 
 const { width, height } = Dimensions.get('window');
 
@@ -52,6 +53,7 @@ interface TopicDetailProps {
 const TopicDetail: React.FC<TopicDetailProps> = ({ route, navigation }) => {
   const [activeSection, setActiveSection] = useState<string>('education');
   const scrollY = new Animated.Value(0);
+  const router = useRouter(); // ADD THIS
 
   // Mock data - replace with actual route params in real implementation
   const topic = route?.params?.topic || {
@@ -300,8 +302,11 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
     return contents[id as keyof typeof contents] || contents[1];
   };
 
+  // UPDATED BACK NAVIGATION FUNCTION
   const handleBackPress = (): void => {
-    if (navigation) {
+    if (router) {
+      router.push('/(tabs)/EcoComplianceHub');
+    } else if (navigation) {
       navigation.goBack();
     } else {
       console.log('Navigate back to EcoComplianceHub');
@@ -336,6 +341,14 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
       <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
       </Animated.View>
 
+      {/* ADD BACK BUTTON - SIMILAR TO REPORTS COMPONENT */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+        <View style={styles.backButtonContent}>
+          <ArrowLeft size={24} color="#fff" />
+          <Text style={styles.backText}>Back to Hub</Text>
+        </View>
+      </TouchableOpacity>
+
       <Animated.ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -346,11 +359,7 @@ Under current emission trajectories, ocean temperatures could rise 1-4°C by 210
           { useNativeDriver: true }
         )}
       >
-        {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <ArrowLeft size={24} color="#fff" />
-          <Text style={styles.backText}>Back to Hub</Text>
-        </TouchableOpacity>
+        {/* REMOVED OLD BACK BUTTON FROM HERE */}
 
         {/* Hero Section with Video */}
         <View style={styles.heroContainer}>
@@ -487,21 +496,22 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     paddingTop: StatusBar.currentHeight || 0,
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 60,
-    paddingBottom: 100,
-  },
-
-  // Back Button
+  // ADD BACK BUTTON STYLES - SIMILAR TO REPORTS
   backButton: {
+    position: 'absolute',
+    top: StatusBar.currentHeight || 40,
+    left: 16,
+    zIndex: 1000,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  backButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   backText: {
     fontSize: 16,
@@ -509,6 +519,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: '600',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingTop: 100, // CHANGED from 60 to 100 to accommodate the back button
+    paddingBottom: 100,
+  },
+
+  // REMOVED OLD BACK BUTTON STYLES
 
   // Hero Section
   heroContainer: {

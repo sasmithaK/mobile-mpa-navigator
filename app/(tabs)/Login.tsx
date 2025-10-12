@@ -74,7 +74,6 @@ const LoginScreen: React.FC = () => {
   };
 
   const accentColor = '#06bfdb';
-  const gradientColors = ['#0a1929', '#1a365d', '#065f9d', '#000000'];
 
   return (
     <View style={styles.container}>
@@ -90,7 +89,7 @@ const LoginScreen: React.FC = () => {
           resizeMode="cover"
         />
         <LinearGradient
-          colors={gradientColors}
+          colors={['#0a1929', '#1a365d', '#065f9d', '#000000']}
           style={styles.gradient}
         />
       </Animated.View>
@@ -151,7 +150,7 @@ const LoginScreen: React.FC = () => {
 
             {/* Text */}
             <View style={styles.textSection}>
-              <Text style={styles.title}>Welcome\nBack</Text>
+              <Text style={styles.title}>Welcome{'\n'}Back</Text>
               <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
               <Text style={styles.subtitle}>Sign in to your account</Text>
               <Text style={styles.description}>
