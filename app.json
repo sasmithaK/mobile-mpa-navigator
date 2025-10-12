@@ -4,7 +4,7 @@
     "slug": "mpa-navigator",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "",
+    "icon": "./assets/images/logo.png",
     "scheme": "mpanavigator",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,23 +13,22 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "",
-        "backgroundImage": ".",
-        "monochromeImage": ""
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#E6F4FE"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.sasmithak.mpanavigator"
     },
     "web": {
       "output": "static",
-      "favicon": ""
+      "favicon": "./assets/images/logo.png"
     },
     "plugins": [
       [
         "expo-splash-screen",
         {
-          "image": "",
+          "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -44,6 +43,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0d81aadb-5745-4b68-b481-023578081e9a"
+      }
     }
   }
 }

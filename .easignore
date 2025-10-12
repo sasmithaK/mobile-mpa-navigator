@@ -1,0 +1,22 @@
+# common things to exclude
+node_modules/
+.expo/
+.expo-shared/
+.vscode/
+.DS_Store
+*.log
+.git/
+*.apk
+*.aab
+
+# exclude large media not needed for build (move to remote hosting)
+assets/videos/
+assets/*.mp4
+assets/*.mov
+*.mp4
+*.mov
+
+# optional: local artifacts
+build/
+dist/
+tmp/
