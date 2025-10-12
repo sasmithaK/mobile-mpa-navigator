@@ -11,6 +11,7 @@ import {
   Modal
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router'; // ADD THIS
 import { 
   ArrowLeft,
   Award,
@@ -51,7 +52,8 @@ interface Answer {
   isCorrect: boolean;
 }
 
-const QuizPage: React.FC = () => {
+const QuizPage: React.FC = () => { // Remove props
+  const router = useRouter(); // ADD THIS
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -115,6 +117,7 @@ const QuizPage: React.FC = () => {
     // Add more questions here...
   ];
 
+  // UPDATE THIS FUNCTION
   const handleBackPress = (): void => {
     if (selectedCategory) {
       setSelectedCategory(null);
@@ -122,6 +125,8 @@ const QuizPage: React.FC = () => {
       setAnswers([]);
       setSelectedOption(null);
       setHasAnswered(false);
+    } else {
+      router.push('/(tabs)/EcoComplianceHub'); // CHANGED
     }
   };
 
@@ -193,18 +198,21 @@ const QuizPage: React.FC = () => {
       <StatusBar barStyle="light-content" />
       <LinearGradient colors={['#0a1929', '#1a365d', '#0f172a']} style={styles.gradient} />
 
+      {/* ADD FIXED BACK BUTTON */}
+      <TouchableOpacity style={styles.backButtonFixed} onPress={handleBackPress}>
+        <View style={styles.backButtonContent}>
+          <ArrowLeft size={24} color="#fff" />
+          <Text style={styles.backText}>
+            {selectedCategory ? 'Back to Categories' : 'Back to Hub'}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
       <Animated.ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <ArrowLeft size={24} color="#fff" />
-          <Text style={styles.backText}>
-            {selectedCategory ? 'Back to Categories' : 'Back'}
-          </Text>
-        </TouchableOpacity>
-
         {!selectedCategory && (
           <>
             <LinearGradient
@@ -425,24 +433,35 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  scrollView: {
-    flex: 1,
+  // ADD THESE STYLES
+  backButtonFixed: {
+    position: 'absolute',
+    top: StatusBar.currentHeight || 40,
+    left: 16,
+    zIndex: 1000,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  scrollContent: {
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  backButton: {
+  backButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    margin: 16,
-    marginBottom: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   backText: {
     fontSize: 16,
     color: '#fff',
     marginLeft: 8,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingTop: 100, // CHANGED from 60 to 100
+    paddingBottom: 40,
   },
   heroContainer: {
     margin: 16,

@@ -6,24 +6,24 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Platform,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router'; // ADD THIS
 import {
   MapPin,
   Navigation2,
-  FileText,
   AlertTriangle,
   Fish,
   Droplet,
-  Image as ImageIcon,
-  Ship,
   Save,
   X,
+  ArrowLeft, // ADD THIS
 } from 'lucide-react-native';
 
-const Reports = () => {
+const Reports: React.FC = () => { // Remove props
+  const router = useRouter(); // ADD THIS
   const [reportType, setReportType] = useState<'hotspot' | 'pollution'>('hotspot');
   const [title, setTitle] = useState('');
   const [species, setSpecies] = useState('');
@@ -34,6 +34,11 @@ const Reports = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // ADD THIS FUNCTION
+  const handleBackPress = (): void => {
+    router.push('/(tabs)/EcoComplianceHub');
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -98,6 +103,14 @@ const Reports = () => {
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#0a1929', '#1a365d', '#0f172a']} style={styles.gradient} />
+
+      {/* ADD BACK BUTTON */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+        <View style={styles.backButtonContent}>
+          <ArrowLeft size={24} color="#fff" />
+          <Text style={styles.backText}>Back to Hub</Text>
+        </View>
+      </TouchableOpacity>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Header */}
@@ -297,12 +310,35 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  // ADD THESE STYLES
+  backButton: {
+    position: 'absolute',
+    top: StatusBar.currentHeight || 40,
+    left: 16,
+    zIndex: 1000,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  backButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  backText: {
+    fontSize: 16,
+    color: '#fff',
+    marginLeft: 8,
+    fontWeight: '600',
+  },
   scrollView: {
     flex: 1,
   },
   content: {
     padding: 16,
-    paddingTop: 60,
+    paddingTop: 100, // CHANGED from 60 to 100
     paddingBottom: 32,
   },
   header: {

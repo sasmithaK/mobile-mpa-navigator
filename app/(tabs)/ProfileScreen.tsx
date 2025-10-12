@@ -50,11 +50,10 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleLogout = () => {
-    router.push('/Login');
+    router.push('/(tabs)/Login');
   };
 
   const accentColor = '#06bfdb';
-  const gradientColors = ['#0a1929', '#1a365d', '#065f9d', '#000000'] as const;
 
   const settingsCards = [
     {
@@ -157,7 +156,7 @@ const ProfileScreen: React.FC = () => {
           resizeMode="cover"
         />
         <LinearGradient
-          colors={gradientColors}
+          colors={['#0a1929', '#1a365d', '#065f9d', '#000000']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradient}
@@ -182,16 +181,18 @@ const ProfileScreen: React.FC = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <View style={[styles.logoRing, { borderColor: accentColor }]}>
-            <Feather name="anchor" size={20} color={accentColor} />
-          </View>
-          <Text style={styles.logoText}>Marine Nav</Text>
-        </View>
-
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Feather name="chevron-left" size={24} color="#fff" />
         </TouchableOpacity>
+
+        <View style={styles.headerCenter}>
+          <View style={[styles.logoRing, { borderColor: accentColor }]}>
+            <Feather name="user" size={20} color={accentColor} />
+          </View>
+          <Text style={styles.headerTitle}>Profile</Text>
+        </View>
+
+        <View style={styles.headerRight} />
       </View>
 
       <ScrollView 
@@ -360,17 +361,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     zIndex: 10,
   },
-  logoContainer: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  logoRing: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  logoText: { color: '#fff', fontSize: 18, fontWeight: '700', letterSpacing: 0.5 },
   backBtn: {
     width: 44,
     height: 44,
@@ -380,6 +370,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+  },
+  headerCenter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    zIndex: -1,
+  },
+  logoRing: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  headerRight: {
+    width: 44,
   },
   scrollView: { flex: 1 },
   scrollContent: { paddingBottom: 40 },

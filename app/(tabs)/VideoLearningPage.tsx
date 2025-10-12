@@ -8,9 +8,7 @@ import {
   Dimensions,
   Animated,
   StatusBar,
-  Linking,
   Modal,
-  Image
 } from 'react-native';
 import { 
   Play,
@@ -28,10 +26,12 @@ import {
   Fish,
   Leaf,
   AlertTriangle,
-  Anchor
+  Anchor,
+  ArrowLeft
 } from 'lucide-react-native';
 import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router'; // Add this import
 
 const { width, height } = Dimensions.get('window');
 
@@ -56,13 +56,14 @@ interface VideoCategory {
 }
 
 const VideoLearningPage: React.FC = () => {
+  const router = useRouter(); // Add this
   const [activeSection, setActiveSection] = useState<string>('videos');
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [showVideoModal, setShowVideoModal] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<Video[]>([]);
   const scrollY = new Animated.Value(0);
 
-  // Video Categories with actual videos
+  // Video Categories with actual videos (keep existing data)
   const videoCategories: VideoCategory[] = [
     {
       id: 1,
@@ -77,7 +78,7 @@ const VideoLearningPage: React.FC = () => {
           duration: '12:45',
           views: '2.3M',
           category: 'Marine Biodiversity',
-          thumbnail: require('../../assets/images/nav4.jpg'),
+          thumbnail: 'nav4.jpg',
           videoUrl: 'https://youtu.be/aZlxnoTXOTQ?si=gNATUqRIlpwZuYZg',
           difficulty: 'Beginner'
         },
@@ -293,6 +294,11 @@ const VideoLearningPage: React.FC = () => {
     }
   ];
 
+  // Updated handleBackPress to use expo-router
+  const handleBackPress = (): void => {
+    router.push('/(tabs)/EcoComplianceHub');
+  };
+
   const handleVideoPress = (video: Video): void => {
     setSelectedVideo(video);
     setShowVideoModal(true);
@@ -328,8 +334,13 @@ const VideoLearningPage: React.FC = () => {
         style={styles.gradient}
       />
 
-      <Animated.View style={styles.headerContainer}>
-      </Animated.View>
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+        <View style={styles.backButtonContent}>
+          <ArrowLeft size={24} color="#fff" />
+          <Text style={styles.backText}>Back to Hub</Text>
+        </View>
+      </TouchableOpacity>
 
       <Animated.ScrollView
         style={styles.scrollView}
@@ -341,6 +352,7 @@ const VideoLearningPage: React.FC = () => {
           { useNativeDriver: true }
         )}
       >
+        {/* Rest of your component stays the same... */}
         {/* Hero Banner */}
         <View style={styles.heroBanner}>
           <LinearGradient
@@ -370,9 +382,8 @@ const VideoLearningPage: React.FC = () => {
         </View>
 
         {/* Video Categories */}
-        {videoCategories.map((category, categoryIndex) => (
+        {videoCategories.map((category) => (
           <View key={category.id} style={styles.categorySection}>
-            {/* Category Header */}
             <View style={styles.categoryHeader}>
               <View style={styles.categoryTitleRow}>
                 <View style={[styles.categoryIconBox, { 
@@ -392,7 +403,6 @@ const VideoLearningPage: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Horizontal Scrolling Video Cards */}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -412,7 +422,6 @@ const VideoLearningPage: React.FC = () => {
                     colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.03)']}
                     style={styles.cardGradient}
                   >
-                    {/* Thumbnail */}
                     <View style={styles.thumbnailContainer}>
                       <View style={[styles.thumbnailPlaceholder, { 
                         backgroundColor: category.color + '30' 
@@ -420,13 +429,11 @@ const VideoLearningPage: React.FC = () => {
                         <PlayCircle size={48} color="#fff" opacity={0.8} />
                       </View>
                       
-                      {/* Duration Badge */}
                       <View style={styles.durationBadge}>
                         <Clock size={12} color="#fff" />
                         <Text style={styles.durationText}>{video.duration}</Text>
                       </View>
 
-                      {/* Play Overlay */}
                       <View style={styles.playOverlay}>
                         <View style={styles.playButton}>
                           <Play size={24} color="#06bfdb" />
@@ -434,7 +441,6 @@ const VideoLearningPage: React.FC = () => {
                       </View>
                     </View>
 
-                    {/* Video Info */}
                     <View style={styles.videoInfo}>
                       <Text style={styles.videoTitle} numberOfLines={2}>
                         {video.title}
@@ -443,7 +449,6 @@ const VideoLearningPage: React.FC = () => {
                         {video.description}
                       </Text>
                       
-                      {/* Video Meta */}
                       <View style={styles.videoMeta}>
                         <View style={styles.metaItem}>
                           <Eye size={14} color="#93c5fd" />
@@ -482,14 +487,12 @@ const VideoLearningPage: React.FC = () => {
             style={styles.modalGradient}
           >
             <View style={styles.modalContent}>
-              {/* Close Button */}
               <TouchableOpacity style={styles.closeButton} onPress={closeVideoModal}>
                 <X size={24} color="#fff" />
               </TouchableOpacity>
 
               {selectedVideo && (
                 <>
-                  {/* Video Player Placeholder */}
                   <View style={styles.videoPlayerContainer}>
                     {selectedVideo?.videoUrl && (
                       <WebView
@@ -503,7 +506,6 @@ const VideoLearningPage: React.FC = () => {
                     )}
                   </View>
 
-                  {/* Video Details */}
                   <View style={styles.modalVideoDetails}>
                     <View style={styles.modalHeader}>
                       <Text style={styles.modalTitle}>{selectedVideo.title}</Text>
@@ -573,6 +575,7 @@ const VideoLearningPage: React.FC = () => {
   );
 };
 
+// Keep all your existing styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -583,23 +586,35 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  headerContainer: {
+  backButton: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+    top: StatusBar.currentHeight || 40,
+    left: 16,
     zIndex: 1000,
-    paddingTop: StatusBar.currentHeight || 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  backButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  backText: {
+    fontSize: 16,
+    color: '#fff',
+    marginLeft: 8,
+    fontWeight: '600',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 60,
+    paddingTop: 100,
     paddingBottom: 40,
   },
-
-  // Hero Banner
   heroBanner: {
     height: 280,
     marginHorizontal: 24,
@@ -673,8 +688,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     marginHorizontal: 12,
   },
-
-  // Category Section
   categorySection: {
     marginBottom: 32,
   },
@@ -728,8 +741,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 4,
   },
-
-  // Video Cards
   videoScrollContainer: {
     paddingLeft: 24,
     paddingRight: 16,
@@ -747,9 +758,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  firstVideoCard: {
-    // Special styling for first card if needed
-  },
+  firstVideoCard: {},
   cardGradient: {
     flex: 1,
   },
@@ -842,8 +851,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
   },
-
-  // Modal
   modalOverlay: {
     flex: 1,
   },
@@ -965,6 +972,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  });
+});
 
 export default VideoLearningPage;

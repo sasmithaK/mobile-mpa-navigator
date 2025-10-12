@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Image,
   TextInput,
   StatusBar,
+  Modal,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -16,15 +18,100 @@ import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
+// Demo notifications data
+const DEMO_NOTIFICATIONS = [
+  {
+    id: 1,
+    title: 'Weather Alert',
+    message: 'Strong winds expected in your route area',
+    time: '5 min ago',
+    icon: 'cloud-drizzle',
+    color: '#ef4444',
+    unread: true,
+  },
+  {
+    id: 2,
+    title: 'Route Update',
+    message: 'New maritime route available - 15% faster',
+    time: '1 hour ago',
+    icon: 'navigation',
+    color: '#06bfdb',
+    unread: true,
+  },
+  {
+    id: 3,
+    title: 'Compliance Reminder',
+    message: 'Environmental compliance report due in 3 days',
+    time: '2 hours ago',
+    icon: 'shield',
+    color: '#10b981',
+    unread: true,
+  },
+  {
+    id: 4,
+    title: 'Learning Module',
+    message: 'New maritime safety course available',
+    time: '1 day ago',
+    icon: 'book-open',
+    color: '#3b82f6',
+    unread: false,
+  },
+];
+
 const Home: React.FC = () => {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('home');
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [notifications, setNotifications] = useState(DEMO_NOTIFICATIONS);
+  const [selectedFilters, setSelectedFilters] = useState({
+    routes: false,
+    weather: false,
+    conservation: false,
+    safety: false,
+  });
+  const [sortBy, setSortBy] = useState('recent');
+  const slideAnim = useRef(new Animated.Value(-400)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const filterSlideAnim = useRef(new Animated.Value(-400)).current;
+  const filterFadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Animate notification dropdown
+  useEffect(() => {
+    if (notificationVisible) {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: -400,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [notificationVisible]);
 
   const handleMapNavigation = () => {
     console.log('Navigating to ShipMap...');
@@ -40,6 +127,30 @@ const Home: React.FC = () => {
     console.log('Navigating to EcoComplianceHub...');
     router.push('/(tabs)/EcoComplianceHub');
   };
+
+  const handleProfileNavigation = () => {
+    console.log('Navigating to Profile...');
+    router.push('/(tabs)/ProfileScreen');
+  };
+
+  const toggleNotifications = () => {
+    setNotificationVisible(!notificationVisible);
+  };
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev =>
+      prev.map(notif =>
+        notif.id === id ? { ...notif, unread: false } : notif
+      )
+    );
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    setNotificationVisible(false);
+  };
+
+  const unreadCount = notifications.filter(n => n.unread).length;
 
   const stats = [
     { label: 'Miles Sailed', value: '1,247', icon: 'navigation' },
@@ -95,6 +206,8 @@ const Home: React.FC = () => {
       handleWeatherNavigation();
     } else if (tabId === 'education') {
       handleEcoHubNavigation();
+    } else if (tabId === 'profile') {
+      handleProfileNavigation();
     } else {
       setActiveTab(tabId);
     }
@@ -112,7 +225,10 @@ const Home: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity style={styles.profileButton}>
+            <TouchableOpacity 
+              style={styles.profileButton}
+              onPress={handleProfileNavigation}
+            >
               <Image
                 source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
                 style={styles.profileImage}
@@ -125,11 +241,16 @@ const Home: React.FC = () => {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={toggleNotifications}
+            >
               <Feather name="bell" size={22} color="#fff" />
-              <View style={styles.notificationBadge}>
-                <Text style={styles.badgeText}>3</Text>
-              </View>
+              {unreadCount > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.badgeText}>{unreadCount}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -146,6 +267,92 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Notification Dropdown */}
+      {notificationVisible && (
+        <Animated.View 
+          style={[
+            styles.notificationDropdown,
+            {
+              transform: [{ translateY: slideAnim }],
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <LinearGradient
+            colors={['rgba(15, 23, 42, 0.98)', 'rgba(10, 25, 41, 0.98)']}
+            style={styles.notificationContainer}
+          >
+            <View style={styles.notificationHeader}>
+              <View style={styles.notificationHeaderLeft}>
+                <Feather name="bell" size={20} color="#06bfdb" />
+                <Text style={styles.notificationTitle}>Notifications</Text>
+                {unreadCount > 0 && (
+                  <View style={styles.unreadBadge}>
+                    <Text style={styles.unreadText}>{unreadCount}</Text>
+                  </View>
+                )}
+              </View>
+              <TouchableOpacity onPress={toggleNotifications}>
+                <Feather name="x" size={20} color="rgba(255,255,255,0.6)" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView 
+              style={styles.notificationList}
+              showsVerticalScrollIndicator={false}
+            >
+              {notifications.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Feather name="bell-off" size={48} color="rgba(255,255,255,0.2)" />
+                  <Text style={styles.emptyText}>No notifications</Text>
+                </View>
+              ) : (
+                notifications.map((notif) => (
+                  <TouchableOpacity
+                    key={notif.id}
+                    style={[
+                      styles.notificationItem,
+                      notif.unread && styles.notificationUnread
+                    ]}
+                    onPress={() => markAsRead(notif.id)}
+                  >
+                    <View style={[styles.notifIcon, { backgroundColor: `${notif.color}20` }]}>
+                      <Feather name={notif.icon as any} size={18} color={notif.color} />
+                    </View>
+                    <View style={styles.notifContent}>
+                      <Text style={styles.notifTitle}>{notif.title}</Text>
+                      <Text style={styles.notifMessage} numberOfLines={2}>
+                        {notif.message}
+                      </Text>
+                      <Text style={styles.notifTime}>{notif.time}</Text>
+                    </View>
+                    {notif.unread && <View style={styles.unreadDot} />}
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+
+            {notifications.length > 0 && (
+              <TouchableOpacity 
+                style={styles.clearAllButton}
+                onPress={clearAllNotifications}
+              >
+                <Text style={styles.clearAllText}>Clear All</Text>
+              </TouchableOpacity>
+            )}
+          </LinearGradient>
+        </Animated.View>
+      )}
+
+      {/* Overlay */}
+      {notificationVisible && (
+        <TouchableOpacity 
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={toggleNotifications}
+        />
+      )}
 
       <ScrollView 
         style={styles.scrollView} 
@@ -196,7 +403,6 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Weather Card with Navigation */}
         <TouchableOpacity 
           style={styles.weatherCard}
           activeOpacity={0.8}
@@ -354,6 +560,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 16,
     backgroundColor: 'transparent',
+    zIndex: 10,
   },
   headerTop: {
     flexDirection: 'row',
@@ -451,6 +658,133 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6, 191, 219, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 15,
+  },
+  notificationDropdown: {
+    position: 'absolute',
+    top: 140,
+    left: 16,
+    right: 16,
+    maxHeight: 450,
+    zIndex: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  notificationContainer: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  notificationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  notificationHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  notificationTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  unreadBadge: {
+    backgroundColor: '#06bfdb',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  unreadText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#000',
+  },
+  notificationList: {
+    maxHeight: 320,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.4)',
+    marginTop: 16,
+    fontWeight: '500',
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+    gap: 12,
+  },
+  notificationUnread: {
+    backgroundColor: 'rgba(6, 191, 219, 0.05)',
+  },
+  notifIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notifContent: {
+    flex: 1,
+  },
+  notifTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  notifMessage: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 6,
+    lineHeight: 18,
+  },
+  notifTime: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.4)',
+    fontWeight: '500',
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#06bfdb',
+    marginTop: 6,
+  },
+  clearAllButton: {
+    padding: 16,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  clearAllText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ef4444',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -795,5 +1129,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#06bfdb',
   },
 });
-
 export default Home;
