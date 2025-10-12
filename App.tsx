@@ -57,6 +57,7 @@ const App: React.FC = () => {
           <Stack.Screen name="QuizPage" component={QuizPage} />
           <Stack.Screen name="Reports" component={Reports} />
           <Stack.Screen name="TopicDetail" component={TopicDetail} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </>

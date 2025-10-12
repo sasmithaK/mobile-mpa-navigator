@@ -13,11 +13,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
 const ProfileScreen: React.FC = () => {
+  const router = useRouter();
   const [notifications, setNotifications] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
   const [locationServices, setLocationServices] = React.useState(true);
@@ -45,7 +46,7 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleNavigation = (screen: string) => {
-    console.log(`Navigate to ${screen}`);
+    router.push(screen as any);
   };
 
   const handleLogout = () => {
@@ -53,13 +54,13 @@ const ProfileScreen: React.FC = () => {
   };
 
   const accentColor = '#06bfdb';
-  const gradientColors = ['#0a1929', '#1a365d', '#065f9d', '#000000'];
+  const gradientColors = ['#0a1929', '#1a365d', '#065f9d', '#000000'] as const;
 
   const settingsCards = [
     {
       id: 1,
       title: 'App Settings',
-      icon: 'settings',
+      icon: 'settings' as const,
       items: [
         {
           id: 1,
@@ -87,27 +88,27 @@ const ProfileScreen: React.FC = () => {
     {
       id: 2,
       title: 'Support',
-      icon: 'help-circle',
+      icon: 'help-circle' as const,
       items: [
         {
           id: 1,
           label: 'FAQ & Help Center',
-          icon: 'help-circle',
+          icon: 'help-circle' as const,
           onPress: () => handleNavigation('FAQ'),
           type: 'link' as const,
         },
         {
           id: 2,
           label: 'Contact Support',
-          icon: 'mail',
-          onPress: () => handleNavigation('Contact'),
+          icon: 'mail' as const,
+          onPress: () => handleNavigation('ContactSupport'),
           type: 'link' as const,
         },
         {
           id: 3,
           label: 'Report an Issue',
-          icon: 'alert-triangle',
-          onPress: () => handleNavigation('Report'),
+          icon: 'alert-triangle' as const,
+          onPress: () => handleNavigation('ReportIssue'),
           type: 'link' as const,
         },
       ],
@@ -115,27 +116,27 @@ const ProfileScreen: React.FC = () => {
     {
       id: 3,
       title: 'Legal',
-      icon: 'file-text',
+      icon: 'file-text' as const,
       items: [
         {
           id: 1,
           label: 'Terms & Conditions',
-          icon: 'file-text',
-          onPress: () => handleNavigation('Terms'),
+          icon: 'file-text' as const,
+          onPress: () => handleNavigation('TermsConditions'),
           type: 'link' as const,
         },
         {
           id: 2,
           label: 'Privacy Policy',
-          icon: 'shield',
-          onPress: () => handleNavigation('Privacy'),
+          icon: 'shield' as const,
+          onPress: () => handleNavigation('PrivacyPolicy'),
           type: 'link' as const,
         },
         {
           id: 3,
           label: 'About Us',
-          icon: 'info',
-          onPress: () => handleNavigation('About'),
+          icon: 'info' as const,
+          onPress: () => handleNavigation('AboutUs'),
           type: 'link' as const,
         },
       ],
@@ -157,6 +158,8 @@ const ProfileScreen: React.FC = () => {
         />
         <LinearGradient
           colors={gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={styles.gradient}
         />
       </View>
@@ -268,7 +271,7 @@ const ProfileScreen: React.FC = () => {
               <View key={section.id} style={styles.sectionCard}>
                 <View style={styles.sectionHeader}>
                   <View style={styles.sectionTitleContainer}>
-                    <Feather name={section.icon as any} size={20} color={accentColor} />
+                    <Feather name={section.icon} size={20} color={accentColor} />
                     <Text style={styles.sectionTitle}>{section.title}</Text>
                   </View>
                 </View>
@@ -283,7 +286,7 @@ const ProfileScreen: React.FC = () => {
                       >
                         <View style={styles.itemLeft}>
                           {item.type === 'link' && (
-                            <Feather name={item.icon as any} size={18} color="rgba(255,255,255,0.7)" />
+                            <Feather name={item.icon} size={18} color="rgba(255,255,255,0.7)" />
                           )}
                           <Text style={styles.itemLabel}>{item.label}</Text>
                         </View>
@@ -314,6 +317,8 @@ const ProfileScreen: React.FC = () => {
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <LinearGradient
               colors={['rgba(239, 68, 68, 0.8)', 'rgba(220, 38, 38, 0.9)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
               style={styles.logoutGradient}
             >
               <Feather name="log-out" size={20} color="#fff" />
@@ -378,25 +383,10 @@ const styles = StyleSheet.create({
   },
   scrollView: { flex: 1 },
   scrollContent: { paddingBottom: 40 },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  avatarGlow: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    opacity: 0.15,
-  },
+  content: { paddingHorizontal: 20, paddingTop: 20 },
+  profileHeader: { alignItems: 'center', marginBottom: 30 },
+  avatarSection: { alignItems: 'center', marginBottom: 20 },
+  avatarGlow: { position: 'absolute', width: 140, height: 140, borderRadius: 70, opacity: 0.15 },
   avatarRing: {
     width: 120,
     height: 120,
@@ -407,11 +397,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
     overflow: 'hidden',
   },
-  avatar: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-  },
+  avatar: { width: 110, height: 110, borderRadius: 55 },
   editAvatarBtn: {
     position: 'absolute',
     bottom: 5,
@@ -425,17 +411,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#000',
   },
-  profileInfo: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  profileName: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
+  profileInfo: { alignItems: 'center', marginBottom: 20 },
+  profileName: { fontSize: 28, fontWeight: '700', color: '#fff', textAlign: 'center', marginBottom: 8 },
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -445,16 +422,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
   },
-  roleText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#000',
-  },
-  profileEmail: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.7)',
-    textAlign: 'center',
-  },
+  roleText: { fontSize: 12, fontWeight: '600', color: '#000' },
+  profileEmail: { fontSize: 16, color: 'rgba(255,255,255,0.7)', textAlign: 'center' },
   editProfileBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -466,16 +435,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
   },
-  editProfileText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-  },
+  editProfileText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  statsContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
   statCard: {
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.05)',
@@ -486,29 +447,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
-    textAlign: 'center',
-  },
-  sectionsContainer: {
-    gap: 20,
-    marginBottom: 30,
-  },
+  statIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  statValue: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 4 },
+  statLabel: { fontSize: 12, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
+  sectionsContainer: { gap: 20, marginBottom: 30 },
   sectionCard: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 20,
@@ -516,24 +458,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  sectionHeader: {
-    marginBottom: 16,
-  },
-  sectionTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  sectionItems: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(0,0,0,0.2)',
-  },
+  sectionHeader: { marginBottom: 16 },
+  sectionTitleContainer: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: '600', color: '#fff' },
+  sectionItems: { borderRadius: 12, overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.2)' },
   sectionItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -542,50 +470,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: 'rgba(255,255,255,0.03)',
   },
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  itemLabel: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '500',
-  },
-  itemSeparator: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    marginHorizontal: 12,
-  },
-  logoutButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  logoutGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 16,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  versionContainer: {
-    alignItems: 'center',
-  },
-  versionText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
-    marginBottom: 4,
-  },
-  copyrightText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.3)',
-  },
+  itemLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  itemLabel: { fontSize: 16, color: 'rgba(255,255,255,0.9)', fontWeight: '500' },
+  itemSeparator: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginHorizontal: 12 },
+  logoutButton: { borderRadius: 16, overflow: 'hidden', marginBottom: 20 },
+  logoutGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 16 },
+  logoutText: { fontSize: 16, fontWeight: '600', color: '#fff' },
+  versionContainer: { alignItems: 'center' },
+  versionText: { fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 4 },
+  copyrightText: { fontSize: 12, color: 'rgba(255,255,255,0.3)' },
 });
 
 export default ProfileScreen;
