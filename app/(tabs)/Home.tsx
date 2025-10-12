@@ -1,143 +1,334 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  ScrollView,
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
+  ScrollView,
+  StyleSheet,
   Dimensions,
-  Animated,
-  StatusBar
+  Image,
+  TextInput,
+  StatusBar,
 } from 'react-native';
-import { 
-  Activity, 
-  Compass, 
-  Route, 
-  Waves, 
-  Navigation, 
-  Settings, 
-  AlertTriangle,
-  Search,
-  Anchor,
-  BarChart3,
-  Ship,
-  Clock,
-  MapPin
-} from 'lucide-react-native';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import ShipMap from '../../components/ShipMap';
-import StatsCards from '../../components/StatsCards';
-import FeaturesGrid from '../../components/FeaturesGrid';
-import TechnologyStack from '../../components/TechnologyStack';
-import '../../Styles/global.css';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
-const Home = () => {
-  const [activeSection, setActiveSection] = useState('tracker');
-  const scrollY = new Animated.Value(0);
+const Home: React.FC = () => {
+  const router = useRouter();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [activeTab, setActiveTab] = useState('home');
 
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [1, 0.9],
-    extrapolate: 'clamp',
-  });
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleMapNavigation = () => {
+    console.log('Navigating to ShipMap...');
+    router.push('/(tabs)/ShipMap');
+  };
+
+  const handleWeatherNavigation = () => {
+    console.log('Navigating to WeatherConditions...');
+    router.push('/(tabs)/WeatherConditions');
+  };
+
+  const handleEcoHubNavigation = () => {
+    console.log('Navigating to EcoComplianceHub...');
+    router.push('/(tabs)/EcoComplianceHub');
+  };
+
+  const stats = [
+    { label: 'Miles Sailed', value: '1,247', icon: 'navigation' },
+    { label: 'Routes Saved', value: '23', icon: 'map-pin' },
+    { label: 'Wind Speed', value: '12 kts', icon: 'wind' }
+  ];
+
+  const newsArticles = [
+    { 
+      id: 1,
+      title: 'New Marine Protected Area Established',
+      category: 'Conservation',
+      time: '2 hours ago',
+      image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400&q=80',
+      excerpt: 'Government announces 500 sq km protected zone to preserve coral reefs and marine biodiversity.',
+      icon: 'shield',
+      color: '#10b981'
+    },
+    { 
+      id: 2,
+      title: 'Severe Weather Alert: Tropical Storm Approaching',
+      category: 'Weather',
+      time: '5 hours ago',
+      image: 'https://images.unsplash.com/photo-1527482797697-8795b05a13fe?w=400&q=80',
+      excerpt: 'Mariners advised to seek shelter as storm system moves northeast with 45 knot winds.',
+      icon: 'alert-triangle',
+      color: '#ef4444'
+    },
+    { 
+      id: 3,
+      title: 'Updated Navigation Routes for Harbor Entrance',
+      category: 'Routes',
+      time: '1 day ago',
+      image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&q=80',
+      excerpt: 'New channel markers installed. Mariners should update charts and follow revised approach.',
+      icon: 'navigation-2',
+      color: '#3b82f6'
+    }
+  ];
+
+  const navItems = [
+    { id: 'home', icon: 'home', label: 'Home' },
+    { id: 'map', icon: 'map', label: 'Map' },
+    { id: 'weather', icon: 'cloud', label: 'Weather' },
+    { id: 'education', icon: 'book-open', label: 'Learn' },
+    { id: 'profile', icon: 'user', label: 'Profile' },
+  ];
+
+  const handleNavigation = (tabId: string) => {
+    if (tabId === 'map') {
+      handleMapNavigation();
+    } else if (tabId === 'weather') {
+      handleWeatherNavigation();
+    } else if (tabId === 'education') {
+      handleEcoHubNavigation();
+    } else {
+      setActiveTab(tabId);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
-        <Header activeSection={activeSection} setActiveSection={setActiveSection} />
-      </Animated.View>
+      <StatusBar barStyle="light-content" />
+      
+      <LinearGradient
+        colors={['#0a1929', '#1a365d', '#0f172a']}
+        style={styles.gradient}
+      />
 
-      <Animated.ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity style={styles.profileButton}>
+              <Image
+                source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
+                style={styles.profileImage}
+              />
+              <View style={styles.onlineIndicator} />
+            </TouchableOpacity>
+            <View>
+              <Text style={styles.greetingText}>Good Morning</Text>
+              <Text style={styles.userName}>Captain John</Text>
+            </View>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="bell" size={22} color="#fff" />
+              <View style={styles.notificationBadge}>
+                <Text style={styles.badgeText}>3</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.searchContainer}>
+          <Feather name="search" size={20} color="rgba(255,255,255,0.5)" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search routes, locations..."
+            placeholderTextColor="rgba(255,255,255,0.5)"
+          />
+          <TouchableOpacity style={styles.filterButton}>
+            <Feather name="sliders" size={20} color="#06bfdb" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <ScrollView 
+        style={styles.scrollView} 
         showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
+        contentContainerStyle={styles.scrollContent}
       >
-        {/* Enhanced Page Title */}
-        <View style={styles.titleContainer}>
-          <View style={styles.titleGradient} />
-          
-          <Text style={styles.mainTitle}>
-            Smart Maritime Navigator For Ships
-          </Text>
-          <Text style={styles.subtitle}>
-            Real-time vessel tracking and sustainable route optimization
-          </Text>
-          
-          {/* Live Status Indicators */}
-          <View style={styles.statusContainer}>
-            {[
-              { icon: Activity, label: 'System Status', value: 'Online', color: '#10b981' },
-              { icon: Compass, label: 'GPS Accuracy', value: '±2m', color: '#3b82f6' },
-              { icon: Route, label: 'Data Update', value: 'Real-time', color: '#f59e0b' }
-            ].map((status, index) => (
-              <View key={index} style={styles.statusItem}>
-                <status.icon size={18} color={status.color} />
-                <Text style={styles.statusLabel}>{status.label}: </Text>
-                <Text style={[styles.statusValue, { color: status.color }]}>
-                  {status.value}
-                </Text>
-              </View>
-            ))}
-          </View>
+        <View style={styles.statsContainer}>
+          {stats.map((stat, i) => (
+            <View key={i} style={styles.statCard}>
+              <Feather name={stat.icon as any} color="#22d3ee" size={20} />
+              <Text style={styles.statLabel}>{stat.label}</Text>
+              <Text style={styles.statValue}>{stat.value}</Text>
+            </View>
+          ))}
         </View>
 
-        <StatsCards />
-
-        {/* Enhanced Map Section */}
-        <View style={styles.mapContainer}>
-          {/* Map Header */}
-          <View style={styles.mapHeader}>
-            <View style={styles.mapHeaderTop}>
-              <View>
-                <View style={styles.mapTitleContainer}>
-                  <Waves size={28} color="#3b82f6" />
-                  <Text style={styles.mapTitle}>Live Maritime Traffic Map</Text>
-                </View>
-                <Text style={styles.mapSubtitle}>
-                  Real-time vessel positions, routes, and navigation data
-                </Text>
+        <View style={styles.mapNavSection}>
+          <Text style={styles.sectionTitle}>
+            <Feather name="navigation" size={20} color="#06bfdb" /> Navigate
+          </Text>
+          <TouchableOpacity 
+            style={styles.mapCard}
+            activeOpacity={0.7}
+            onPress={handleMapNavigation}
+          >
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80' }}
+              style={styles.mapPreview}
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
+              style={styles.mapOverlay}
+            />
+            <View style={styles.mapContent}>
+              <View style={styles.mapIconContainer}>
+                <Feather name="navigation" size={32} color="#06bfdb" />
+              </View>
+              <Text style={styles.mapTitle}>Start Navigation</Text>
+              <Text style={styles.mapSubtitle}>Open live nautical map</Text>
+              <View style={styles.gpsStatus}>
+                <Feather name="activity" size={16} color="#10b981" />
+                <Text style={styles.gpsText}>GPS Ready • 12 Satellites</Text>
               </View>
             </View>
-            
-            {/* Enhanced Map Stats */}
-            <View style={styles.mapStats}>
-              {[
-                { label: 'Total Distance Tracked', value: '2,847 nm', icon: Route },
-                { label: 'Active Shipping Lanes', value: '4 major routes', icon: Navigation },
-                { label: 'Avg Fleet Speed', value: '15.2 knots', icon: Activity },
-                { label: 'Environmental Zones', value: '3 monitored', icon: AlertTriangle }
-              ].map((stat, index) => (
-                <View key={index} style={styles.mapStatItem}>
-                  <View style={styles.mapStatIcon}>
-                    <stat.icon size={18} color="#3b82f6" />
-                  </View>
-                  <View>
-                    <Text style={styles.mapStatValue}>{stat.value}</Text>
-                    <Text style={styles.mapStatLabel}>{stat.label}</Text>
-                  </View>
-                </View>
-              ))}
+            <View style={styles.floatingCompass}>
+              <Feather name="compass" size={20} color="#06bfdb" />
             </View>
-          </View>
-          
-          {/* Map Container */}
-          <View style={styles.mapWrapper}>
-            <ShipMap />
-          </View>
+          </TouchableOpacity>
         </View>
 
-        <FeaturesGrid />
-        <TechnologyStack />
-        <Footer />
-      </Animated.ScrollView>
+        {/* Weather Card with Navigation */}
+        <TouchableOpacity 
+          style={styles.weatherCard}
+          activeOpacity={0.8}
+          onPress={handleWeatherNavigation}
+        >
+          <LinearGradient
+            colors={['rgba(99, 102, 241, 0.3)', 'rgba(59, 130, 246, 0.2)']}
+            style={styles.weatherGradient}
+          >
+            <View style={styles.weatherHeader}>
+              <Feather name="cloud-drizzle" size={28} color="#93c5fd" />
+              <Text style={styles.weatherTitle}>Marine Weather</Text>
+              <View style={styles.weatherArrow}>
+                <Feather name="arrow-right" size={20} color="#06bfdb" />
+              </View>
+            </View>
+            <View style={styles.weatherDetails}>
+              <View style={styles.weatherItem}>
+                <Feather name="thermometer" size={20} color="#22d3ee" />
+                <Text style={styles.weatherLabel}>Temperature</Text>
+                <Text style={styles.weatherValue}>72°F</Text>
+              </View>
+              <View style={styles.weatherDivider} />
+              <View style={styles.weatherItem}>
+                <Feather name="wind" size={20} color="#22d3ee" />
+                <Text style={styles.weatherLabel}>Wind Speed</Text>
+                <Text style={styles.weatherValue}>12 kts</Text>
+              </View>
+              <View style={styles.weatherDivider} />
+              <View style={styles.weatherItem}>
+                <Feather name="activity" size={20} color="#22d3ee" />
+                <Text style={styles.weatherLabel}>Wave Height</Text>
+                <Text style={styles.weatherValue}>2-3 ft</Text>
+              </View>
+            </View>
+            <View style={styles.weatherCondition}>
+              <View style={styles.conditionBadge}>
+                <Feather name="check-circle" size={16} color="#10b981" />
+                <Text style={styles.conditionText}>Good Conditions for Sailing</Text>
+              </View>
+            </View>
+            <View style={styles.tapToViewContainer}>
+              <Text style={styles.tapToViewText}>Tap to view detailed forecast</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Feather name="book-open" size={20} color="#22d3ee" />
+            <Text style={styles.sectionTitleText}>Educational Hub</Text>
+            <TouchableOpacity 
+              style={styles.viewAllButton}
+              onPress={handleEcoHubNavigation}
+            >
+              <Text style={styles.viewAllText}>View All</Text>
+              <Feather name="arrow-right" size={16} color="#06bfdb" />
+            </TouchableOpacity>
+          </View>
+
+          {newsArticles.map((article) => (
+            <TouchableOpacity 
+              key={article.id} 
+              style={styles.newsCard} 
+              activeOpacity={0.8}
+              onPress={handleEcoHubNavigation}
+            >
+              <Image source={{ uri: article.image }} style={styles.newsImage} />
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']}
+                style={styles.newsOverlay}
+              />
+              <View style={styles.newsContent}>
+                <View style={styles.newsHeader}>
+                  <View style={[styles.categoryBadge, { backgroundColor: `${article.color}30` }]}>
+                    <Feather name={article.icon as any} size={14} color={article.color} />
+                    <Text style={[styles.categoryText, { color: article.color }]}>
+                      {article.category}
+                    </Text>
+                  </View>
+                  <View style={styles.timeContainer}>
+                    <Feather name="clock" size={12} color="rgba(255,255,255,0.6)" />
+                    <Text style={styles.timeText}>{article.time}</Text>
+                  </View>
+                </View>
+                <Text style={styles.newsTitle}>{article.title}</Text>
+                <Text style={styles.newsExcerpt} numberOfLines={2}>{article.excerpt}</Text>
+                <View style={styles.readMoreContainer}>
+                  <Text style={styles.readMoreText}>Read More</Text>
+                  <Feather name="arrow-right" size={16} color="#06bfdb" />
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+
+      <View style={styles.bottomNav}>
+        <LinearGradient
+          colors={['rgba(10, 25, 41, 0.98)', 'rgba(15, 23, 42, 0.98)']}
+          style={styles.bottomNavGradient}
+        >
+          {navItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.navItem}
+              onPress={() => handleNavigation(item.id)}
+              activeOpacity={0.7}
+            >
+              <View style={[
+                styles.navIconContainer,
+                activeTab === item.id && styles.navIconActive
+              ]}>
+                <Feather
+                  name={item.icon as any}
+                  size={22}
+                  color={activeTab === item.id ? '#06bfdb' : 'rgba(255,255,255,0.5)'}
+                />
+              </View>
+              <Text style={[
+                styles.navLabel,
+                activeTab === item.id && styles.navLabelActive
+              ]}>
+                {item.label}
+              </Text>
+              {activeTab === item.id && <View style={styles.activeIndicator} />}
+            </TouchableOpacity>
+          ))}
+        </LinearGradient>
+      </View>
     </View>
   );
 };
@@ -145,156 +336,463 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#0a1929',
   },
-  headerContainer: {
+  gradient: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    paddingTop: StatusBar.currentHeight,
+    width: '100%',
+    height: '100%',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 120, // Space for header
+    paddingBottom: 20,
   },
-  titleContainer: {
-    backgroundColor: '#f8fafc',
-    margin: 16,
-    padding: 20,
-    borderRadius: 20,
-    position: 'relative',
-    overflow: 'hidden',
+  header: {
+    paddingTop: 50,
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    backgroundColor: 'transparent',
   },
-  titleGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: '#3b82f6',
-  },
-  mainTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: '#1f2937',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  statusContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    flexWrap: 'wrap',
-  },
-  statusItem: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 25,
-    margin: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    gap: 12,
   },
-  statusLabel: {
-    color: '#374151',
-    fontSize: 12,
+  profileButton: {
+    position: 'relative',
+  },
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: '#06bfdb',
+  },
+  onlineIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#10b981',
+    borderWidth: 2,
+    borderColor: '#0a1929',
+  },
+  greetingText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
-    marginLeft: 4,
   },
-  statusValue: {
-    fontSize: 12,
+  userName: {
+    fontSize: 18,
+    color: '#fff',
     fontWeight: '700',
-    marginLeft: 2,
+    marginTop: 2,
   },
-  mapContainer: {
-    backgroundColor: 'white',
-    margin: 16,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 8,
-    overflow: 'hidden',
-  },
-  mapHeader: {
-    padding: 20,
-    backgroundColor: '#f8fafc',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  mapHeaderTop: {
+  headerRight: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
+    gap: 12,
   },
-  mapTitleContainer: {
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  mapTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginLeft: 8,
-  },
-  mapSubtitle: {
-    color: '#6b7280',
-    fontSize: 14,
-  },
-  mapStats: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: 16,
-  },
-  mapStatItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginBottom: 8,
-    minWidth: width * 0.4,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
-  mapStatIcon: {
+  searchInput: {
+    flex: 1,
+    marginLeft: 12,
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  filterButton: {
     width: 36,
     height: 36,
-    backgroundColor: '#3b82f620',
-    borderRadius: 8,
-    alignItems: 'center',
+    borderRadius: 10,
+    backgroundColor: 'rgba(6, 191, 219, 0.15)',
     justifyContent: 'center',
-    marginRight: 12,
+    alignItems: 'center',
   },
-  mapStatValue: {
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    gap: 12,
+    marginTop: 16,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  statLabel: {
+    fontSize: 11,
+    color: '#93c5fd',
+    marginTop: 8,
+    fontWeight: '600',
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#fff',
+    marginTop: 4,
+  },
+  mapNavSection: {
+    paddingHorizontal: 24,
+    marginTop: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 16,
+    letterSpacing: 0.5,
+  },
+  mapCard: {
+    height: 220,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(6, 191, 219, 0.3)',
+  },
+  mapPreview: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  mapOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  mapContent: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    padding: 24,
+  },
+  mapIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(6, 191, 219, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#06bfdb',
+  },
+  mapTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  mapSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  gpsStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  gpsText: {
+    fontSize: 13,
+    color: '#10b981',
+    fontWeight: '600',
+  },
+  floatingCompass: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderWidth: 1,
+    borderColor: '#06bfdb',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  section: {
+    paddingHorizontal: 24,
+    marginTop: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  sectionTitleText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 0.5,
+    flex: 1,
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#06bfdb',
+    fontWeight: '600',
+  },
+  weatherCard: {
+    marginHorizontal: 24,
+    marginTop: 24,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  weatherGradient: {
+    padding: 20,
+  },
+  weatherHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 20,
+  },
+  weatherTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    flex: 1,
+  },
+  weatherArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(6, 191, 219, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  weatherDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  weatherItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 8,
+  },
+  weatherDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginHorizontal: 8,
+  },
+  weatherLabel: {
+    fontSize: 11,
+    color: '#93c5fd',
+    fontWeight: '600',
+  },
+  weatherValue: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    color: '#fff',
+    fontWeight: '700',
   },
-  mapStatLabel: {
+  weatherCondition: {
+    alignItems: 'center',
+  },
+  conditionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  conditionText: {
+    fontSize: 13,
+    color: '#10b981',
+    fontWeight: '600',
+  },
+  tapToViewContainer: {
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  tapToViewText: {
     fontSize: 12,
-    color: '#6b7280',
+    color: 'rgba(255,255,255,0.5)',
+    fontWeight: '500',
   },
-  mapWrapper: {
-    height: 400,
+  newsCard: {
+    height: 280,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 16,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  newsImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  newsOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  newsContent: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    padding: 20,
+  },
+  newsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  categoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  categoryText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  timeText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+  newsTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#fff',
+    marginBottom: 8,
+    lineHeight: 26,
+  },
+  newsExcerpt: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 20,
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  readMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  readMoreText: {
+    fontSize: 14,
+    color: '#06bfdb',
+    fontWeight: '700',
+  },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  bottomNavGradient: {
+    flexDirection: 'row',
+    paddingBottom: 20,
+    paddingTop: 12,
+    paddingHorizontal: 8,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  navIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navIconActive: {
+    backgroundColor: 'rgba(6, 191, 219, 0.15)',
+  },
+  navLabel: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.5)',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  navLabelActive: {
+    color: '#06bfdb',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: -12,
+    width: 32,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: '#06bfdb',
   },
 });
 

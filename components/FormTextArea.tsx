@@ -1,0 +1,88 @@
+import React from 'react';
+import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
+
+interface FormTextAreaProps extends TextInputProps {
+  label: string;
+  error?: string;
+  icon?: React.ReactNode;
+  required?: boolean;
+}
+
+const FormTextArea: React.FC<FormTextAreaProps> = ({
+  label,
+  error,
+  icon,
+  required = false,
+  ...props
+}) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.label}>
+        {label}
+        {required && <Text style={styles.required}> *</Text>}
+      </Text>
+      <View style={[styles.inputContainer, error && styles.inputError]}>
+        {icon && <View style={styles.iconContainer}>{icon}</View>}
+        <TextInput
+          style={[styles.input, icon ? styles.inputWithIcon : null]}
+          placeholderTextColor="#9ca3af"
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          {...props}
+        />
+      </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  required: {
+    color: '#ef4444',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+  },
+  inputError: {
+    borderColor: '#ef4444',
+  },
+  iconContainer: {
+    marginRight: 8,
+    paddingTop: 2,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 0,
+    paddingBottom: 12,
+    fontSize: 16,
+    color: '#1f2937',
+    minHeight: 100,
+  },
+  inputWithIcon: {
+    paddingLeft: 0,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#ef4444',
+    marginTop: 4,
+  },
+});
+
+export default FormTextArea;
+
