@@ -12,14 +12,35 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
+// Firebase imports
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
+
 const { width, height } = Dimensions.get('window');
 
 type UserType = 'shipping' | 'port' | 'environmental' | 'community';
+
+type FeatherIconName = React.ComponentProps<typeof Feather>['name'];
+
+// User data interface
+interface UserData {
+  uid: string;
+  email: string;
+  userType: UserType;
+  role: string;
+  createdAt: any;
+  updatedAt: any;
+  isActive: boolean;
+  [key: string]: any;
+}
 
 const RegisterScreen: React.FC = () => {
   const [userType, setUserType] = useState<UserType>('shipping');
@@ -74,47 +95,253 @@ const RegisterScreen: React.FC = () => {
     ]).start();
   }, []);
 
+  const validateForm = (): boolean => {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return false;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long');
+      return false;
+    }
+
+    // Validate user type specific fields
+    switch (userType) {
+      case 'shipping':
+        if (!companyName || !fleetSize || !vesselType) {
+          Alert.alert('Error', 'Please fill in all shipping company details');
+          return false;
+        }
+        break;
+      case 'port':
+        if (!portName || !portLocation || !authorityCode) {
+          Alert.alert('Error', 'Please fill in all port authority details');
+          return false;
+        }
+        break;
+      case 'environmental':
+        if (!orgName || !orgType || !focusArea) {
+          Alert.alert('Error', 'Please fill in all environmental organization details');
+          return false;
+        }
+        break;
+      case 'community':
+        if (!communityName || !location || !population) {
+          Alert.alert('Error', 'Please fill in all coastal community details');
+          return false;
+        }
+        break;
+    }
+
+    return true;
+  };
+
+  const getUserSpecificData = () => {
+    switch (userType) {
+      case 'shipping':
+        return {
+          companyName: companyName.trim(),
+          fleetSize: parseInt(fleetSize) || 0,
+          vesselType: vesselType.trim(),
+        };
+      case 'port':
+        return {
+          portName: portName.trim(),
+          portLocation: portLocation.trim(),
+          authorityCode: authorityCode.trim(),
+        };
+      case 'environmental':
+        return {
+          orgName: orgName.trim(),
+          orgType: orgType.trim(),
+          focusArea: focusArea.trim(),
+        };
+      case 'community':
+        return {
+          communityName: communityName.trim(),
+          location: location.trim(),
+          population: parseInt(population) || 0,
+        };
+      default:
+        return {};
+    }
+  };
+
+  // Get role based on user type (Role-Based Access Control)
+  const getRoleFromUserType = (type: UserType): string => {
+    const roleMap: Record<UserType, string> = {
+      shipping: 'shipping_manager',
+      port: 'port_authority',
+      environmental: 'environmental_officer',
+      community: 'community_member',
+    };
+    return roleMap[type];
+  };
+
   const handleRegister = async () => {
-    if (!email || !password || password !== confirmPassword) {
-      // Handle validation
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      console.log('🚀 Starting registration process...');
+
+      // 1. Create user with Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log('✅ Firebase Auth user created:', user.uid);
+
+      // 2. Update user profile with display name
+      const displayName = getUserDisplayName();
+      await updateProfile(user, { displayName });
+      console.log('✅ User profile updated');
+
+      // 3. Prepare user data for Firestore with RBAC
+      const userData: UserData = {
+        uid: user.uid,
+        email: email.toLowerCase().trim(),
+        userType,
+        role: getRoleFromUserType(userType), // RBAC role
+        ...getUserSpecificData(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        isActive: true,
+      };
+
+      // 4. Save user data to Firestore
+      await setDoc(doc(db, 'users', user.uid), userData);
+      console.log('✅ User data saved to Firestore');
+
+      // 5. Create role-specific collection entry
+      await createRoleSpecificEntry(user.uid, userData);
+
+      // Success
+      Alert.alert(
+        '✅ Success!',
+        'Account created successfully! Please login to continue.',
+        [
+          {
+            text: 'Go to Login',
+            onPress: () => {
+              // Sign out user to require login
+              auth.signOut();
+              router.replace('/(tabs)/Login');
+            },
+          },
+        ]
+      );
+
+    } catch (error: any) {
+      console.error('❌ Registration error:', error);
+      
+      let errorMessage = 'An error occurred during registration. Please try again.';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered. Please login or use a different email.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'The email address is invalid.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'The password is too weak. Please use a stronger password.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your internet connection.';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Email/password authentication is not enabled. Please contact support.';
+          break;
+        default:
+          errorMessage = error.message || 'Registration failed. Please try again.';
+      }
+      
+      Alert.alert('Registration Failed', errorMessage);
+    } finally {
       setIsLoading(false);
-      router.push('/(tabs)/Home');
-    }, 1500);
+    }
+  };
+
+  // Get display name based on user type
+  const getUserDisplayName = (): string => {
+    switch (userType) {
+      case 'shipping':
+        return companyName;
+      case 'port':
+        return portName;
+      case 'environmental':
+        return orgName;
+      case 'community':
+        return communityName;
+      default:
+        return email.split('@')[0];
+    }
+  };
+
+  // Create role-specific collection entry for better querying
+  const createRoleSpecificEntry = async (uid: string, userData: UserData) => {
+    try {
+      const collectionMap: Record<UserType, string> = {
+        shipping: 'shipping_companies',
+        port: 'port_authorities',
+        environmental: 'environmental_orgs',
+        community: 'communities',
+      };
+
+      const collectionName = collectionMap[userType];
+      await setDoc(doc(db, collectionName, uid), {
+        ...userData,
+        userId: uid,
+      });
+      console.log(`✅ Created entry in ${collectionName}`);
+    } catch (error) {
+      console.error('⚠️ Error creating role-specific entry:', error);
+      // Non-critical error, don't throw
+    }
   };
 
   const handleLogin = () => {
-    router.back();
+    router.push('/(tabs)/Login');
   };
 
   const userTypes = [
     {
       id: 'shipping' as UserType,
       title: 'Shipping & Captains',
-      icon: 'anchor',
+      icon: 'anchor' as FeatherIconName,
       description: 'Company vessels and ship operations'
     },
     {
       id: 'port' as UserType,
       title: 'Port Authorities',
-      icon: 'map-pin',
+      icon: 'map-pin' as FeatherIconName,
       description: 'Port management and operations'
     },
     {
       id: 'environmental' as UserType,
       title: 'Environmental',
-      icon: 'leaf',
+      icon: 'globe' as FeatherIconName,
       description: 'Conservation and research'
     },
     {
       id: 'community' as UserType,
       title: 'Coastal Community',
-      icon: 'users',
+      icon: 'users' as FeatherIconName,
       description: 'Local communities and citizens'
     }
   ];
@@ -130,23 +357,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Company Name"
+                placeholder="Company Name *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={companyName}
                 onChangeText={setCompanyName}
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <View style={styles.inputIcon}>
-                <Feather name="ship" size={20} color="rgba(255,255,255,0.7)" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Fleet Size"
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={fleetSize}
-                onChangeText={setFleetSize}
-                keyboardType="numeric"
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -155,10 +370,25 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Primary Vessel Type"
+                placeholder="Fleet Size *"
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                value={fleetSize}
+                onChangeText={setFleetSize}
+                keyboardType="numeric"
+                editable={!isLoading}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <View style={styles.inputIcon}>
+                <Feather name="compass" size={20} color="rgba(255,255,255,0.7)" />
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Primary Vessel Type *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={vesselType}
                 onChangeText={setVesselType}
+                editable={!isLoading}
               />
             </View>
           </>
@@ -173,10 +403,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Port Name"
+                placeholder="Port Name *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={portName}
                 onChangeText={setPortName}
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -185,10 +416,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Port Location"
+                placeholder="Port Location *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={portLocation}
                 onChangeText={setPortLocation}
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -197,10 +429,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Authority Code"
+                placeholder="Authority Code *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={authorityCode}
                 onChangeText={setAuthorityCode}
+                editable={!isLoading}
               />
             </View>
           </>
@@ -215,10 +448,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Organization Name"
+                placeholder="Organization Name *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={orgName}
                 onChangeText={setOrgName}
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -227,10 +461,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Organization Type"
+                placeholder="Organization Type *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={orgType}
                 onChangeText={setOrgType}
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -239,10 +474,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Focus Area"
+                placeholder="Focus Area *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={focusArea}
                 onChangeText={setFocusArea}
+                editable={!isLoading}
               />
             </View>
           </>
@@ -257,10 +493,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Community Name"
+                placeholder="Community Name *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={communityName}
                 onChangeText={setCommunityName}
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -269,10 +506,11 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Location"
+                placeholder="Location *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={location}
                 onChangeText={setLocation}
+                editable={!isLoading}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -281,11 +519,12 @@ const RegisterScreen: React.FC = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Approximate Population"
+                placeholder="Approximate Population *"
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 value={population}
                 onChangeText={setPopulation}
                 keyboardType="numeric"
+                editable={!isLoading}
               />
             </View>
           </>
@@ -297,13 +536,12 @@ const RegisterScreen: React.FC = () => {
   };
 
   const accentColor = '#06bfdb';
-  const gradientColors = ['#0a1929', '#1a365d', '#065f9d', '#000000'];
+  const gradientColors: (string)[] = ['#0a1929', '#1a365d', '#065f9d', '#000000'];
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      {/* Background */}
       <Animated.View style={[styles.bgWrapper, { transform: [{ scale: scaleAnim }] }]}>
         <Image
           source={{
@@ -313,16 +551,15 @@ const RegisterScreen: React.FC = () => {
           resizeMode="cover"
         />
         <LinearGradient
-          colors={gradientColors}
+          colors={gradientColors as [string, string, string, string]}
           style={styles.gradient}
         />
       </Animated.View>
 
-      {/* Particles */}
       <View style={styles.particles}>
         {[...Array(6)].map((_, i) => (
           <View
-            key={i}
+            key={`particle-${i}`}
             style={[
               styles.particle,
               {
@@ -334,7 +571,6 @@ const RegisterScreen: React.FC = () => {
         ))}
       </View>
 
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <View style={[styles.logoRing, { borderColor: accentColor }]}>
@@ -362,7 +598,6 @@ const RegisterScreen: React.FC = () => {
               },
             ]}
           >
-            {/* Icon */}
             <View style={styles.iconSection}>
               <View style={[styles.iconGlow, { backgroundColor: accentColor }]} />
               <View style={[styles.iconRing, { borderColor: accentColor }]}>
@@ -372,9 +607,8 @@ const RegisterScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Text */}
             <View style={styles.textSection}>
-              <Text style={styles.title}>Create\nAccount</Text>
+              <Text style={styles.title}>Create{'\n'}Account</Text>
               <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
               <Text style={styles.subtitle}>Join Marine Nav community</Text>
               <Text style={styles.description}>
@@ -382,7 +616,6 @@ const RegisterScreen: React.FC = () => {
               </Text>
             </View>
 
-            {/* User Type Selector */}
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false}
@@ -398,13 +631,14 @@ const RegisterScreen: React.FC = () => {
                     userType === type.id && styles.userTypeCardActive,
                     userType === type.id && { borderColor: accentColor }
                   ]}
+                  disabled={isLoading}
                 >
                   <View style={[
                     styles.userTypeIcon,
                     { backgroundColor: userType === type.id ? accentColor : 'rgba(255,255,255,0.1)' }
                   ]}>
                     <Feather 
-                      name={type.icon as any} 
+                      name={type.icon} 
                       size={20} 
                       color={userType === type.id ? '#000' : 'rgba(255,255,255,0.7)'} 
                     />
@@ -422,22 +656,21 @@ const RegisterScreen: React.FC = () => {
               ))}
             </ScrollView>
 
-            {/* Form */}
             <View style={styles.formContainer}>
-              {/* Common Fields */}
               <View style={styles.inputContainer}>
                 <View style={styles.inputIcon}>
                   <Feather name="mail" size={20} color="rgba(255,255,255,0.7)" />
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="Email address"
+                  placeholder="Email address *"
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
                   autoComplete="email"
+                  editable={!isLoading}
                 />
               </View>
 
@@ -447,16 +680,18 @@ const RegisterScreen: React.FC = () => {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="Password"
+                  placeholder="Password *"
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
+                  editable={!isLoading}
                 />
                 <TouchableOpacity
                   style={styles.eyeIcon}
                   onPress={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   <Feather
                     name={showPassword ? 'eye' : 'eye-off'}
@@ -472,16 +707,18 @@ const RegisterScreen: React.FC = () => {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="Confirm Password"
+                  placeholder="Confirm Password *"
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry={!showConfirmPassword}
                   autoComplete="password"
+                  editable={!isLoading}
                 />
                 <TouchableOpacity
                   style={styles.eyeIcon}
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isLoading}
                 >
                   <Feather
                     name={showConfirmPassword ? 'eye' : 'eye-off'}
@@ -491,10 +728,8 @@ const RegisterScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Dynamic Fields based on User Type */}
               {renderUserTypeFields()}
 
-              {/* Register Button */}
               <TouchableOpacity
                 onPress={handleRegister}
                 style={[styles.registerButton, { backgroundColor: accentColor }]}
@@ -509,7 +744,8 @@ const RegisterScreen: React.FC = () => {
                 >
                   {isLoading ? (
                     <View style={styles.loadingContainer}>
-                      <Feather name="loader" size={24} color="#000" />
+                      <ActivityIndicator size="small" color="#000" />
+                      <Text style={styles.buttonText}>Creating...</Text>
                     </View>
                   ) : (
                     <>
@@ -522,10 +758,9 @@ const RegisterScreen: React.FC = () => {
                 </LinearGradient>
               </TouchableOpacity>
 
-              {/* Login Link */}
               <View style={styles.loginContainer}>
                 <Text style={styles.loginText}>Already have an account? </Text>
-                <TouchableOpacity onPress={handleLogin}>
+                <TouchableOpacity onPress={handleLogin} disabled={isLoading}>
                   <Text style={[styles.loginText, styles.loginLink]}>
                     Sign in
                   </Text>
@@ -533,7 +768,6 @@ const RegisterScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Security Note */}
             <View style={styles.securityContainer}>
               <Feather name="shield" size={16} color="rgba(255,255,255,0.5)" />
               <Text style={styles.securityText}>
@@ -755,10 +989,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingContainer: {
-    width: 36,
-    height: 36,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 12,
   },
   loginContainer: {
     flexDirection: 'row',
