@@ -12,12 +12,30 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
+// Firebase imports
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
+
 const { width, height } = Dimensions.get('window');
+
+type UserType = 'shipping' | 'port' | 'environmental' | 'community';
+
+interface UserData {
+  uid: string;
+  email: string;
+  userType: UserType;
+  role: string;
+  isActive: boolean;
+  [key: string]: any;
+}
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -49,28 +67,164 @@ const LoginScreen: React.FC = () => {
     ]).start();
   }, []);
 
-  const handleLogin = async () => {
+  const validateForm = (): boolean => {
     if (!email || !password) {
-      // Handle validation
+      Alert.alert('Error', 'Please enter both email and password');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      console.log('🔐 Starting login process...');
+
+      // 1. Sign in with Firebase Authentication
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log('✅ User authenticated:', user.uid);
+
+      // 2. Get user data from Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // User authenticated but no profile data
+        await auth.signOut();
+        Alert.alert('Error', 'User profile not found. Please contact support.');
+        return;
+      }
+
+      const userData = userDoc.data() as UserData;
+      console.log('✅ User data retrieved:', userData);
+
+      // 3. Check if account is active
+      if (!userData.isActive) {
+        await auth.signOut();
+        Alert.alert(
+          'Account Inactive',
+          'Your account has been deactivated. Please contact support.'
+        );
+        return;
+      }
+
+      // 4. Update last login timestamp
+      await updateDoc(userDocRef, {
+        lastLogin: new Date().toISOString(),
+      });
+      console.log('✅ Last login updated');
+
+      // 5. Navigate based on user role/type
+      navigateBasedOnRole(userData);
+
+    } catch (error: any) {
+      console.error('❌ Login error:', error);
+      
+      let errorMessage = 'Login failed. Please try again.';
+      
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email. Please register first.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = 'Invalid email or password.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection.';
+          break;
+        default:
+          errorMessage = error.message || 'An error occurred during login.';
+      }
+      
+      Alert.alert('Login Failed', errorMessage);
+    } finally {
       setIsLoading(false);
-      router.push('/(tabs)/Home');
-    }, 1500);
+    }
+  };
+
+  // Navigate based on user role (RBAC)
+  const navigateBasedOnRole = (userData: UserData) => {
+    console.log(`🚀 Navigating user with role: ${userData.role}`);
+
+    // You can customize navigation based on user type/role
+    switch (userData.userType) {
+      case 'shipping':
+        router.replace('/(tabs)/Home'); // or shipping-specific dashboard
+        break;
+      case 'port':
+        router.replace('/(tabs)/Home'); // or port-specific dashboard
+        break;
+      case 'environmental':
+        router.replace('/(tabs)/Home'); // or environmental dashboard
+        break;
+      case 'community':
+        router.replace('/(tabs)/Home'); // or community dashboard
+        break;
+      default:
+        router.replace('/(tabs)/Home');
+    }
   };
 
   const handleSignup = () => {
-    // Empty for now as requested
-    console.log('Navigate to signup');
+    router.push('/(tabs)/RegisterScreen');
   };
 
   const handleForgotPassword = () => {
-    // Empty for now as requested
-    console.log('Navigate to forgot password');
+    if (!email) {
+      Alert.alert(
+        'Reset Password',
+        'Please enter your email address first, then tap "Forgot your password?"'
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Reset Password',
+      `A password reset link will be sent to ${email}. Continue?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send',
+          onPress: async () => {
+            try {
+              const { sendPasswordResetEmail } = await import('firebase/auth');
+              await sendPasswordResetEmail(auth, email);
+              Alert.alert(
+                'Success',
+                'Password reset email sent! Please check your inbox.'
+              );
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to send reset email.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const accentColor = '#06bfdb';
@@ -79,7 +233,6 @@ const LoginScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      {/* Background */}
       <Animated.View style={[styles.bgWrapper, { transform: [{ scale: scaleAnim }] }]}>
         <Image
           source={{
@@ -94,11 +247,10 @@ const LoginScreen: React.FC = () => {
         />
       </Animated.View>
 
-      {/* Particles */}
       <View style={styles.particles}>
         {[...Array(6)].map((_, i) => (
           <View
-            key={i}
+            key={`particle-${i}`}
             style={[
               styles.particle,
               {
@@ -110,7 +262,6 @@ const LoginScreen: React.FC = () => {
         ))}
       </View>
 
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <View style={[styles.logoRing, { borderColor: accentColor }]}>
@@ -138,7 +289,6 @@ const LoginScreen: React.FC = () => {
               },
             ]}
           >
-            {/* Icon */}
             <View style={styles.iconSection}>
               <View style={[styles.iconGlow, { backgroundColor: accentColor }]} />
               <View style={[styles.iconRing, { borderColor: accentColor }]}>
@@ -148,7 +298,6 @@ const LoginScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Text */}
             <View style={styles.textSection}>
               <Text style={styles.title}>Welcome{'\n'}Back</Text>
               <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
@@ -158,9 +307,7 @@ const LoginScreen: React.FC = () => {
               </Text>
             </View>
 
-            {/* Form */}
             <View style={styles.formContainer}>
-              {/* Email Input */}
               <View style={styles.inputContainer}>
                 <View style={styles.inputIcon}>
                   <Feather name="mail" size={20} color="rgba(255,255,255,0.7)" />
@@ -174,10 +321,10 @@ const LoginScreen: React.FC = () => {
                   autoCapitalize="none"
                   keyboardType="email-address"
                   autoComplete="email"
+                  editable={!isLoading}
                 />
               </View>
 
-              {/* Password Input */}
               <View style={styles.inputContainer}>
                 <View style={styles.inputIcon}>
                   <Feather name="lock" size={20} color="rgba(255,255,255,0.7)" />
@@ -190,10 +337,12 @@ const LoginScreen: React.FC = () => {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
+                  editable={!isLoading}
                 />
                 <TouchableOpacity
                   style={styles.eyeIcon}
                   onPress={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   <Feather
                     name={showPassword ? 'eye' : 'eye-off'}
@@ -203,15 +352,14 @@ const LoginScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Forgot Password */}
               <TouchableOpacity
                 onPress={handleForgotPassword}
                 style={styles.forgotPassword}
+                disabled={isLoading}
               >
                 <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
               </TouchableOpacity>
 
-              {/* Login Button */}
               <TouchableOpacity
                 onPress={handleLogin}
                 style={[styles.loginButton, { backgroundColor: accentColor }]}
@@ -226,7 +374,8 @@ const LoginScreen: React.FC = () => {
                 >
                   {isLoading ? (
                     <View style={styles.loadingContainer}>
-                      <Feather name="loader" size={24} color="#000" />
+                      <ActivityIndicator size="small" color="#000" />
+                      <Text style={styles.buttonText}>Signing In...</Text>
                     </View>
                   ) : (
                     <>
@@ -239,10 +388,9 @@ const LoginScreen: React.FC = () => {
                 </LinearGradient>
               </TouchableOpacity>
 
-              {/* Sign Up Link */}
               <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>Don't have an account? </Text>
-                <TouchableOpacity onPress={handleSignup}>
+                <TouchableOpacity onPress={handleSignup} disabled={isLoading}>
                   <Text style={[styles.signupText, styles.signupLink]}>
                     Sign up
                   </Text>
@@ -250,7 +398,6 @@ const LoginScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Security Note */}
             <View style={styles.securityContainer}>
               <Feather name="shield" size={16} color="rgba(255,255,255,0.5)" />
               <Text style={styles.securityText}>
@@ -439,10 +586,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingContainer: {
-    width: 36,
-    height: 36,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 12,
   },
   signupContainer: {
     flexDirection: 'row',
