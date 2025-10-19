@@ -83,6 +83,8 @@ const Home: React.FC = () => {
   const [notifications, setNotifications] = useState(DEMO_NOTIFICATIONS);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
   
   const slideAnim = useRef(new Animated.Value(-400)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -292,6 +294,52 @@ const Home: React.FC = () => {
     }
   };
 
+  // Search functionality
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    setSearchActive(text.length > 0);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchActive(false);
+  };
+
+  // Filter content based on search
+  const getFilteredStats = () => {
+    if (!searchQuery) return stats;
+    return stats.filter(stat => 
+      stat.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stat.value.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const getFilteredArticles = () => {
+    if (!searchQuery) return newsArticles;
+    return newsArticles.filter(article =>
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const getSearchResults = () => {
+    if (!searchQuery) return null;
+
+    const filteredStats = getFilteredStats();
+    const filteredArticles = getFilteredArticles();
+    
+    const totalResults = filteredStats.length + filteredArticles.length;
+    
+    return {
+      stats: filteredStats,
+      articles: filteredArticles,
+      total: totalResults
+    };
+  };
+
+  const searchResults = getSearchResults();
+
   // Loading state
   if (loading) {
     return (
@@ -362,13 +410,34 @@ const Home: React.FC = () => {
           <Feather name="search" size={20} color="rgba(255,255,255,0.5)" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search routes, locations..."
+            placeholder="Search routes, locations, articles..."
             placeholderTextColor="rgba(255,255,255,0.5)"
+            value={searchQuery}
+            onChangeText={handleSearch}
           />
-          <TouchableOpacity style={styles.filterButton}>
-            <Feather name="sliders" size={20} color="#06bfdb" />
-          </TouchableOpacity>
+          {searchQuery.length > 0 ? (
+            <TouchableOpacity 
+              style={styles.filterButton}
+              onPress={clearSearch}
+            >
+              <Feather name="x" size={20} color="#06bfdb" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.filterButton}>
+              <Feather name="sliders" size={20} color="#06bfdb" />
+            </TouchableOpacity>
+          )}
         </View>
+
+        {/* Search Results Counter */}
+        {searchActive && searchResults && (
+          <View style={styles.searchResultsHeader}>
+            <Feather name="search" size={16} color="#06bfdb" />
+            <Text style={styles.searchResultsText}>
+              Found {searchResults.total} result{searchResults.total !== 1 ? 's' : ''} for "{searchQuery}"
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Notification Dropdown */}
@@ -462,145 +531,172 @@ const Home: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.statsContainer}>
-          {stats.map((stat, i) => (
-            <View key={i} style={styles.statCard}>
-              <Feather name={stat.icon as any} color="#22d3ee" size={20} />
-              <Text style={styles.statLabel}>{stat.label}</Text>
-              <Text style={styles.statValue}>{stat.value}</Text>
-            </View>
-          ))}
-        </View>
+        {/* Show stats if search matches or no search */}
+        {(!searchActive || (searchResults && searchResults.stats.length > 0)) && (
+          <View style={styles.statsContainer}>
+            {(searchActive ? searchResults!.stats : stats).map((stat, i) => (
+              <View key={i} style={styles.statCard}>
+                <Feather name={stat.icon as any} color="#22d3ee" size={20} />
+                <Text style={styles.statLabel}>{stat.label}</Text>
+                <Text style={styles.statValue}>{stat.value}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
-        <View style={styles.mapNavSection}>
-          <Text style={styles.sectionTitle}>
-            <Feather name="navigation" size={20} color="#06bfdb" /> Navigate
-          </Text>
-          <TouchableOpacity 
-            style={styles.mapCard}
-            activeOpacity={0.7}
-            onPress={handleMapNavigation}
-          >
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80' }}
-              style={styles.mapPreview}
-            />
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
-              style={styles.mapOverlay}
-            />
-            <View style={styles.mapContent}>
-              <View style={styles.mapIconContainer}>
-                <Feather name="navigation" size={32} color="#06bfdb" />
-              </View>
-              <Text style={styles.mapTitle}>Start Navigation</Text>
-              <Text style={styles.mapSubtitle}>Open live nautical map</Text>
-              <View style={styles.gpsStatus}>
-                <Feather name="activity" size={16} color="#10b981" />
-                <Text style={styles.gpsText}>GPS Ready • 12 Satellites</Text>
-              </View>
-            </View>
-            <View style={styles.floatingCompass}>
-              <Feather name="compass" size={20} color="#06bfdb" />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity 
-          style={styles.weatherCard}
-          activeOpacity={0.8}
-          onPress={handleWeatherNavigation}
-        >
-          <LinearGradient
-            colors={['rgba(99, 102, 241, 0.3)', 'rgba(59, 130, 246, 0.2)']}
-            style={styles.weatherGradient}
-          >
-            <View style={styles.weatherHeader}>
-              <Feather name="cloud-drizzle" size={28} color="#93c5fd" />
-              <Text style={styles.weatherTitle}>Marine Weather</Text>
-              <View style={styles.weatherArrow}>
-                <Feather name="arrow-right" size={20} color="#06bfdb" />
-              </View>
-            </View>
-            <View style={styles.weatherDetails}>
-              <View style={styles.weatherItem}>
-                <Feather name="thermometer" size={20} color="#22d3ee" />
-                <Text style={styles.weatherLabel}>Temperature</Text>
-                <Text style={styles.weatherValue}>72°F</Text>
-              </View>
-              <View style={styles.weatherDivider} />
-              <View style={styles.weatherItem}>
-                <Feather name="wind" size={20} color="#22d3ee" />
-                <Text style={styles.weatherLabel}>Wind Speed</Text>
-                <Text style={styles.weatherValue}>12 kts</Text>
-              </View>
-              <View style={styles.weatherDivider} />
-              <View style={styles.weatherItem}>
-                <Feather name="activity" size={20} color="#22d3ee" />
-                <Text style={styles.weatherLabel}>Wave Height</Text>
-                <Text style={styles.weatherValue}>2-3 ft</Text>
-              </View>
-            </View>
-            <View style={styles.weatherCondition}>
-              <View style={styles.conditionBadge}>
-                <Feather name="check-circle" size={16} color="#10b981" />
-                <Text style={styles.conditionText}>Good Conditions for Sailing</Text>
-              </View>
-            </View>
-            <View style={styles.tapToViewContainer}>
-              <Text style={styles.tapToViewText}>Tap to view detailed forecast</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Feather name="book-open" size={20} color="#22d3ee" />
-            <Text style={styles.sectionTitleText}>Educational Hub</Text>
+        {/* Show map section only if no search active */}
+        {!searchActive && (
+          <View style={styles.mapNavSection}>
+            <Text style={styles.sectionTitle}>
+              <Feather name="navigation" size={20} color="#06bfdb" /> Navigate
+            </Text>
             <TouchableOpacity 
-              style={styles.viewAllButton}
-              onPress={handleEcoHubNavigation}
+              style={styles.mapCard}
+              activeOpacity={0.7}
+              onPress={handleMapNavigation}
             >
-              <Text style={styles.viewAllText}>View All</Text>
-              <Feather name="arrow-right" size={16} color="#06bfdb" />
+              <Image
+                source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80' }}
+                style={styles.mapPreview}
+              />
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
+                style={styles.mapOverlay}
+              />
+              <View style={styles.mapContent}>
+                <View style={styles.mapIconContainer}>
+                  <Feather name="navigation" size={32} color="#06bfdb" />
+                </View>
+                <Text style={styles.mapTitle}>Start Navigation</Text>
+                <Text style={styles.mapSubtitle}>Open live nautical map</Text>
+                <View style={styles.gpsStatus}>
+                  <Feather name="activity" size={16} color="#10b981" />
+                  <Text style={styles.gpsText}>GPS Ready • 12 Satellites</Text>
+                </View>
+              </View>
+              <View style={styles.floatingCompass}>
+                <Feather name="compass" size={20} color="#06bfdb" />
+              </View>
             </TouchableOpacity>
           </View>
+        )}
 
-          {newsArticles.map((article) => (
-            <TouchableOpacity 
-              key={article.id} 
-              style={styles.newsCard} 
-              activeOpacity={0.8}
-              onPress={handleEcoHubNavigation}
+        {/* Show weather only if no search active */}
+        {!searchActive && (
+          <TouchableOpacity 
+            style={styles.weatherCard}
+            activeOpacity={0.8}
+            onPress={handleWeatherNavigation}
+          >
+            <LinearGradient
+              colors={['rgba(99, 102, 241, 0.3)', 'rgba(59, 130, 246, 0.2)']}
+              style={styles.weatherGradient}
             >
-              <Image source={{ uri: article.image }} style={styles.newsImage} />
-              <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']}
-                style={styles.newsOverlay}
-              />
-              <View style={styles.newsContent}>
-                <View style={styles.newsHeader}>
-                  <View style={[styles.categoryBadge, { backgroundColor: `${article.color}30` }]}>
-                    <Feather name={article.icon as any} size={14} color={article.color} />
-                    <Text style={[styles.categoryText, { color: article.color }]}>
-                      {article.category}
-                    </Text>
-                  </View>
-                  <View style={styles.timeContainer}>
-                    <Feather name="clock" size={12} color="rgba(255,255,255,0.6)" />
-                    <Text style={styles.timeText}>{article.time}</Text>
-                  </View>
-                </View>
-                <Text style={styles.newsTitle}>{article.title}</Text>
-                <Text style={styles.newsExcerpt} numberOfLines={2}>{article.excerpt}</Text>
-                <View style={styles.readMoreContainer}>
-                  <Text style={styles.readMoreText}>Read More</Text>
-                  <Feather name="arrow-right" size={16} color="#06bfdb" />
+              <View style={styles.weatherHeader}>
+                <Feather name="cloud-drizzle" size={28} color="#93c5fd" />
+                <Text style={styles.weatherTitle}>Marine Weather</Text>
+                <View style={styles.weatherArrow}>
+                  <Feather name="arrow-right" size={20} color="#06bfdb" />
                 </View>
               </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+              <View style={styles.weatherDetails}>
+                <View style={styles.weatherItem}>
+                  <Feather name="thermometer" size={20} color="#22d3ee" />
+                  <Text style={styles.weatherLabel}>Temperature</Text>
+                  <Text style={styles.weatherValue}>72°F</Text>
+                </View>
+                <View style={styles.weatherDivider} />
+                <View style={styles.weatherItem}>
+                  <Feather name="wind" size={20} color="#22d3ee" />
+                  <Text style={styles.weatherLabel}>Wind Speed</Text>
+                  <Text style={styles.weatherValue}>12 kts</Text>
+                </View>
+                <View style={styles.weatherDivider} />
+                <View style={styles.weatherItem}>
+                  <Feather name="activity" size={20} color="#22d3ee" />
+                  <Text style={styles.weatherLabel}>Wave Height</Text>
+                  <Text style={styles.weatherValue}>2-3 ft</Text>
+                </View>
+              </View>
+              <View style={styles.weatherCondition}>
+                <View style={styles.conditionBadge}>
+                  <Feather name="check-circle" size={16} color="#10b981" />
+                  <Text style={styles.conditionText}>Good Conditions for Sailing</Text>
+                </View>
+              </View>
+              <View style={styles.tapToViewContainer}>
+                <Text style={styles.tapToViewText}>Tap to view detailed forecast</Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
+        {/* News section - show filtered or all */}
+        {(!searchActive || (searchResults && searchResults.articles.length > 0)) && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Feather name="book-open" size={20} color="#22d3ee" />
+              <Text style={styles.sectionTitleText}>
+                {searchActive ? 'Search Results' : 'Educational Hub'}
+              </Text>
+              {!searchActive && (
+                <TouchableOpacity 
+                  style={styles.viewAllButton}
+                  onPress={handleEcoHubNavigation}
+                >
+                  <Text style={styles.viewAllText}>View All</Text>
+                  <Feather name="arrow-right" size={16} color="#06bfdb" />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {(searchActive ? searchResults!.articles : newsArticles).map((article) => (
+              <TouchableOpacity 
+                key={article.id} 
+                style={styles.newsCard} 
+                activeOpacity={0.8}
+                onPress={handleEcoHubNavigation}
+              >
+                <Image source={{ uri: article.image }} style={styles.newsImage} />
+                <LinearGradient
+                  colors={['transparent', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']}
+                  style={styles.newsOverlay}
+                />
+                <View style={styles.newsContent}>
+                  <View style={styles.newsHeader}>
+                    <View style={[styles.categoryBadge, { backgroundColor: `${article.color}30` }]}>
+                      <Feather name={article.icon as any} size={14} color={article.color} />
+                      <Text style={[styles.categoryText, { color: article.color }]}>
+                        {article.category}
+                      </Text>
+                    </View>
+                    <View style={styles.timeContainer}>
+                      <Feather name="clock" size={12} color="rgba(255,255,255,0.6)" />
+                      <Text style={styles.timeText}>{article.time}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.newsTitle}>{article.title}</Text>
+                  <Text style={styles.newsExcerpt} numberOfLines={2}>{article.excerpt}</Text>
+                  <View style={styles.readMoreContainer}>
+                    <Text style={styles.readMoreText}>Read More</Text>
+                    <Feather name="arrow-right" size={16} color="#06bfdb" />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* No results message */}
+        {searchActive && searchResults && searchResults.total === 0 && (
+          <View style={styles.noResults}>
+            <Feather name="search" size={64} color="rgba(255,255,255,0.2)" />
+            <Text style={styles.noResultsTitle}>No results found</Text>
+            <Text style={styles.noResultsText}>
+              Try searching for different keywords like "weather", "routes", or "marine"
+            </Text>
+          </View>
+        )}
 
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -788,6 +884,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6, 191, 219, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  searchResultsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 4,
+  },
+  searchResultsText: {
+    fontSize: 14,
+    color: '#06bfdb',
+    fontWeight: '600',
   },
   overlay: {
     position: 'absolute',
@@ -1211,6 +1319,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#06bfdb',
     fontWeight: '700',
+  },
+  noResults: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  noResultsTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  noResultsText: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.6)',
+    textAlign: 'center',
+    lineHeight: 22,
   },
   bottomNav: {
     position: 'absolute',
