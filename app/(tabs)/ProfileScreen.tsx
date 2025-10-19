@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,23 +10,53 @@ import {
   Animated,
   ScrollView,
   Switch,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { auth, db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 const { width, height } = Dimensions.get('window');
 
+interface UserData {
+  uid: string;
+  email: string;
+  userType: string;
+  role: string;
+  displayName?: string;
+  companyName?: string;
+  fleetSize?: number;
+  vesselType?: string;
+  portName?: string;
+  portLocation?: string;
+  authorityCode?: string;
+  orgName?: string;
+  orgType?: string;
+  focusArea?: string;
+  communityName?: string;
+  location?: string;
+  population?: number;
+  photoURL?: string;
+  createdAt?: any;
+  [key: string]: any;
+}
+
 const ProfileScreen: React.FC = () => {
   const router = useRouter();
-  const [notifications, setNotifications] = React.useState(true);
-  const [darkMode, setDarkMode] = React.useState(false);
-  const [locationServices, setLocationServices] = React.useState(true);
+  const [notifications, setNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [locationServices, setLocationServices] = useState(true);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -41,16 +71,118 @@ const ProfileScreen: React.FC = () => {
     ]).start();
   }, []);
 
+  // Fetch user data
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          console.log('🔍 Fetching profile data for:', user.uid);
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            const data = userDoc.data() as UserData;
+            setUserData(data);
+            console.log('✅ Profile data loaded:', data);
+          } else {
+            console.log('⚠️ User document not found');
+          }
+        } catch (error) {
+          console.error('❌ Error fetching profile data:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.log('⚠️ No user logged in');
+        setLoading(false);
+        router.replace('/(tabs)/Login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Get display name
+  const getDisplayName = (): string => {
+    if (!userData) return 'User';
+    
+    if (userData.displayName) return userData.displayName;
+    
+    switch (userData.userType) {
+      case 'shipping':
+        return userData.companyName || 'Captain';
+      case 'port':
+        return userData.portName || 'Port Authority';
+      case 'environmental':
+        return userData.orgName || 'Environmental Officer';
+      case 'community':
+        return userData.communityName || 'Community Member';
+      default:
+        return userData.email?.split('@')[0] || 'User';
+    }
+  };
+
+  // Get user role display
+  const getUserRole = (): string => {
+    if (!userData) return '';
+    
+    const roleMap: Record<string, string> = {
+      shipping: 'Shipping Company',
+      port: 'Port Authority',
+      environmental: 'Environmental Organization',
+      community: 'Coastal Community',
+    };
+    
+    return roleMap[userData.userType] || userData.role || '';
+  };
+
+  // Get role icon
+  const getRoleIcon = (): string => {
+    if (!userData) return 'user';
+    
+    const iconMap: Record<string, string> = {
+      shipping: 'anchor',
+      port: 'map-pin',
+      environmental: 'globe',
+      community: 'users',
+    };
+    
+    return iconMap[userData.userType] || 'user';
+  };
+
   const handleEditProfile = () => {
-    console.log('Navigate to edit profile');
+    Alert.alert('Edit Profile', 'Profile editing feature coming soon!');
   };
 
   const handleNavigation = (screen: string) => {
-    router.push(screen as any);
+    Alert.alert('Navigation', `${screen} feature coming soon!`);
   };
 
-  const handleLogout = () => {
-    router.push('/(tabs)/Login');
+  const handleLogout = async () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              console.log('✅ User signed out successfully');
+              router.replace('/(tabs)/Login');
+            } catch (error) {
+              console.error('❌ Error signing out:', error);
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const accentColor = '#06bfdb';
@@ -142,6 +274,123 @@ const ProfileScreen: React.FC = () => {
     },
   ];
 
+  // Render user-specific details
+  const renderUserDetails = () => {
+    if (!userData) return null;
+
+    switch (userData.userType) {
+      case 'shipping':
+        return (
+          <View style={styles.userDetailsCard}>
+            <Text style={styles.userDetailsTitle}>Company Details</Text>
+            <View style={styles.userDetailRow}>
+              <Feather name="briefcase" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Company:</Text>
+              <Text style={styles.userDetailValue}>{userData.companyName}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="navigation" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Fleet Size:</Text>
+              <Text style={styles.userDetailValue}>{userData.fleetSize || 'N/A'}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="compass" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Vessel Type:</Text>
+              <Text style={styles.userDetailValue}>{userData.vesselType}</Text>
+            </View>
+          </View>
+        );
+      
+      case 'port':
+        return (
+          <View style={styles.userDetailsCard}>
+            <Text style={styles.userDetailsTitle}>Port Authority Details</Text>
+            <View style={styles.userDetailRow}>
+              <Feather name="map-pin" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Port:</Text>
+              <Text style={styles.userDetailValue}>{userData.portName}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="map" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Location:</Text>
+              <Text style={styles.userDetailValue}>{userData.portLocation}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="key" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Authority Code:</Text>
+              <Text style={styles.userDetailValue}>{userData.authorityCode}</Text>
+            </View>
+          </View>
+        );
+      
+      case 'environmental':
+        return (
+          <View style={styles.userDetailsCard}>
+            <Text style={styles.userDetailsTitle}>Organization Details</Text>
+            <View style={styles.userDetailRow}>
+              <Feather name="heart" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Organization:</Text>
+              <Text style={styles.userDetailValue}>{userData.orgName}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="git-branch" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Type:</Text>
+              <Text style={styles.userDetailValue}>{userData.orgType}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="target" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Focus Area:</Text>
+              <Text style={styles.userDetailValue}>{userData.focusArea}</Text>
+            </View>
+          </View>
+        );
+      
+      case 'community':
+        return (
+          <View style={styles.userDetailsCard}>
+            <Text style={styles.userDetailsTitle}>Community Details</Text>
+            <View style={styles.userDetailRow}>
+              <Feather name="users" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Community:</Text>
+              <Text style={styles.userDetailValue}>{userData.communityName}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="map-pin" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Location:</Text>
+              <Text style={styles.userDetailValue}>{userData.location}</Text>
+            </View>
+            <View style={styles.userDetailRow}>
+              <Feather name="bar-chart" size={16} color={accentColor} />
+              <Text style={styles.userDetailLabel}>Population:</Text>
+              <Text style={styles.userDetailValue}>{userData.population?.toLocaleString() || 'N/A'}</Text>
+            </View>
+          </View>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+        <View style={styles.bgWrapper}>
+          <LinearGradient
+            colors={['#0a1929', '#1a365d', '#065f9d', '#000000']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradient}
+          />
+        </View>
+        <ActivityIndicator size="large" color="#06bfdb" />
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
@@ -214,10 +463,16 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.avatarSection}>
               <View style={[styles.avatarGlow, { backgroundColor: accentColor }]} />
               <View style={[styles.avatarRing, { borderColor: accentColor }]}>
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80' }}
-                  style={styles.avatar}
-                />
+                {userData?.photoURL ? (
+                  <Image
+                    source={{ uri: userData.photoURL }}
+                    style={styles.avatar}
+                  />
+                ) : (
+                  <View style={styles.avatarPlaceholder}>
+                    <Feather name={getRoleIcon() as any} size={40} color={accentColor} />
+                  </View>
+                )}
               </View>
               <TouchableOpacity style={styles.editAvatarBtn} onPress={handleEditProfile}>
                 <Feather name="camera" size={16} color="#000" />
@@ -225,12 +480,12 @@ const ProfileScreen: React.FC = () => {
             </View>
 
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>Captain Alex Morgan</Text>
+              <Text style={styles.profileName}>{getDisplayName()}</Text>
               <View style={[styles.roleBadge, { backgroundColor: accentColor }]}>
-                <Feather name="anchor" size={12} color="#000" />
-                <Text style={styles.roleText}>Shipping Captain</Text>
+                <Feather name={getRoleIcon() as any} size={12} color="#000" />
+                <Text style={styles.roleText}>{getUserRole()}</Text>
               </View>
-              <Text style={styles.profileEmail}>alex.morgan@marinenav.com</Text>
+              <Text style={styles.profileEmail}>{userData?.email}</Text>
             </View>
 
             <TouchableOpacity style={styles.editProfileBtn} onPress={handleEditProfile}>
@@ -238,6 +493,9 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.editProfileText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
+
+          {/* User-specific details */}
+          {renderUserDetails()}
 
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
@@ -340,6 +598,16 @@ const ProfileScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 16,
+    fontWeight: '500',
+  },
   bgWrapper: { position: 'absolute', width, height },
   backgroundImage: { width: '100%', height: '100%' },
   gradient: { position: 'absolute', width: '100%', height: '100%' },
@@ -416,6 +684,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatar: { width: 110, height: 110, borderRadius: 55 },
+  avatarPlaceholder: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: 'rgba(6, 191, 219, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   editAvatarBtn: {
     position: 'absolute',
     bottom: 5,
@@ -454,6 +730,39 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.2)',
   },
   editProfileText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  userDetailsCard: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  userDetailsTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 16,
+  },
+  userDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  userDetailLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.7)',
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  userDetailValue: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'right',
+  },
   statsContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
   statCard: {
     alignItems: 'center',

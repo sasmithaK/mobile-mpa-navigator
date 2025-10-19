@@ -286,13 +286,6 @@ const OnboardingScreen: React.FC = () => {
             </View>
           </LinearGradient>
         </TouchableOpacity>
-
-        {/* Progress */}
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
-            {currentPage + 1} / {onboardingData.length}
-          </Text>
-        </View>
       </Animated.View>
     </View>
   );
@@ -442,13 +435,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  progressContainer: { marginTop: 28 },
-  progressText: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 1,
   },
 });
 
