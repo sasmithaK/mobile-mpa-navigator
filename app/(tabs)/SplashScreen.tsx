@@ -19,6 +19,7 @@ const SplashScreen = () => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Start animations
@@ -37,6 +38,13 @@ const SplashScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Progress bar animation (without native driver)
+    Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: false, // Changed to false for width animation
+    }).start();
 
     // Continuous rotation
     Animated.loop(
@@ -69,11 +77,16 @@ const SplashScreen = () => {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [router, scaleAnim, fadeAnim, rotateAnim, pulseAnim]);
+  }, [router, scaleAnim, fadeAnim, rotateAnim, pulseAnim, progressAnim]);
 
   const rotate = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
+  });
+
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, width - 100],
   });
 
   const icons = [
@@ -241,10 +254,7 @@ const SplashScreen = () => {
               style={[
                 styles.loadingProgress,
                 {
-                  width: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%'],
-                  }),
+                  width: progressWidth,
                 },
               ]}
             />
